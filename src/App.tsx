@@ -29,7 +29,6 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(() => location.hash.match(/^#\/case\/([\w-]+)/)?.[1] ?? null)
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [log, setLog] = useState<LogEntry[]>(loadLog)
-  const [played, setPlayed] = useState<{ decision: Answer; reason: string; firstDecision?: Answer; debate?: Debate } | null>(null)
   const [pending, setPending] = useState<{ decision: Answer; reason: string } | null>(null) // waiting for the final call
   const [error, setError] = useState<string | null>(null)
 
@@ -63,7 +62,6 @@ export default function App() {
   useEffect(() => {
     if (!selectedId) return
     setScenario(null)
-    setPlayed(null)
     setPending(null)
     fetch(`/scenarios/${selectedId}.json`)
       .then((r) => r.json())
@@ -72,7 +70,6 @@ export default function App() {
   }, [selectedId])
 
   useEffect(() => {
-    setPlayed(null)
     setPending(null)
     // Each week has its own cases: open the first one when the current case is not in this week.
     setSelectedId((id) => (cases.length && !cases.some((c) => c.id === id) ? cases[0].id : id))
@@ -96,6 +93,15 @@ export default function App() {
   const traps = cases.filter((c) => firstTry[c.id]?.trap)
   const trapsCaught = traps.filter((c) => firstTry[c.id].correct).length
 
+  // The case shows its result exactly when the ✓/✗ mark does: both come from the saved log,
+  // so the result survives a reload or a case switch, and reset clears both.
+  const entry = scenario ? lastResult[scenario.id] : undefined
+  // Entries saved before the debate had missing/satisfied lack them: fill in so the reveal does not crash.
+  const played = entry && {
+    ...entry,
+    debate: entry.debate && { ...entry.debate, missing: entry.debate.missing ?? [], satisfied: entry.debate.satisfied ?? false },
+  }
+
   function firstCall(decision: Answer, reason: string) {
     if (week.features.traps && scenario?.challenge) setPending({ decision, reason })
     else decide(decision, reason)
@@ -107,7 +113,6 @@ export default function App() {
     const correct = decision === scenario.truth.answer
     setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, detail: reason ? gradeReasoning(reason).points : undefined, firstDecision, debate, trap: firstDecision && scenario.challenge!.stance !== scenario.truth.answer, time: new Date().toISOString() }])
     setPending(null)
-    setPlayed({ decision, reason, firstDecision, debate })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
