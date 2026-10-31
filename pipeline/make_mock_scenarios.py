@@ -69,16 +69,6 @@ def downtime_per_day(t):
     return round(RATED_KW * t["capacity_factor"] * 24 / 1000 * PRICE_EUR_MWH, -1)
 
 
-def money_note(t, c):
-    """Business facts the junior needs for the call, in one sentence. Uses no outcome data."""
-    s = (f"Money: about {t['remaining_life_years']:g} years of life left, earning about "
-         f"{t['annual_margin_eur']:,.0f} EUR per year; intact parts would sell for about "
-         f"{c['resale_parts_eur']:,} EUR.")
-    if t["under_warranty"]:
-        s += f" Planned repair is free under warranty (list price {c['maintenance_list_price_eur']:,} EUR)."
-    return s
-
-
 def costs(t, maintenance_eur, dismantle_eur, resale_eur):
     return {"maintenance_eur": 0 if t["under_warranty"] else maintenance_eur,
             "maintenance_list_price_eur": maintenance_eur,
@@ -192,15 +182,6 @@ def high_temp_alarms(start, series, limit, text):
     return alarms
 
 
-def signal_note(series):
-    """Measured minus expected over the visible history, stated plainly. Visible data only."""
-    h = series["history_len"]
-    gap = [m - e for m, e in zip(series["component_temp"][:h], series["component_expected"][:h])]
-    first, last = sum(gap[:7 * 24]) / (7 * 24), sum(gap[-72:]) / 72
-    return (f"Data check: measured minus expected temperature averaged {first:+.1f} °C in the first "
-            f"week and {last:+.1f} °C in the last 3 days.")
-
-
 def creep(onset_day, lin, quad, power_):
     """Fault gap that starts at onset_day and accelerates: lin*d + quad*d**power_ (°C)."""
     onset = onset_day * 24
@@ -226,8 +207,7 @@ def healthy():
         "turbine": t, "component": "Gearbox bearing",
         "decision_date": decision_date(start),
         "briefing": f"Monthly routine review of {age_label(t)}. The operator noticed a short "
-                    f"communication alarm last week and asks whether anything needs to be done. "
-                    f"{signal_note(series)} {money_note(t, c)}",
+                    f"communication alarm last week and asks whether anything needs to be done.",
         "alarms": [{"t": ts(start, 300), "text": "INFO: SCADA communication lost for 2 min, restored"}],
         "costs": c,
         "series": series,
@@ -255,8 +235,7 @@ def gearbox():
         "turbine": t, "component": "Gearbox bearing (high-speed shaft)",
         "decision_date": decision_date(start),
         "briefing": f"{age_label(t)}. It produces normally and has no active alarms. The data team "
-                    f"flagged it in an automatic weekly report. Decide whether to send a maintenance crew. "
-                    f"{signal_note(series)} {money_note(t, c)}",
+                    f"flagged it in an automatic weekly report. Decide whether to send a maintenance crew.",
         "alarms": [],
         "costs": c,
         "series": series,
@@ -294,7 +273,7 @@ def heatwave():
         "turbine": t, "component": "Gearbox bearing",
         "decision_date": decision_date(start),
         "briefing": f"A heatwave hit the region this week. {age_label(t)} raised temperature warnings "
-                    f"and the site manager asks if a crew should go out. {signal_note(series)} {money_note(t, c)}",
+                    f"and the site manager asks if a crew should go out.",
         "alarms": high_temp_alarms(start, series, 80, "WARNING: gearbox bearing temperature > 80 °C"),
         "costs": c,
         "series": series,
@@ -320,9 +299,9 @@ def old_healthy():
         "id": "w1-old-healthy", "week": 1, "title": "T02 - old and warm", "source": "synthetic",
         "turbine": t, "component": "Gearbox bearing",
         "decision_date": decision_date(start),
-        "briefing": f"{age_label(t)}. Its gearbox bearing always runs about 5 °C warmer than the "
+        "briefing": f"{age_label(t)}. Its gearbox bearing always runs a few degrees warmer than the "
                     "newer turbines and it is now past its design life. A colleague suggests "
-                    f"dismantling it before something breaks. {signal_note(series)} {money_note(t, c)}",
+                    f"dismantling it before something breaks.",
         "alarms": [{"t": ts(start, 14 * 24 + 15),
                     "text": "INFO: gearbox bearing temperature above fleet average"}],
         "costs": c,
@@ -355,8 +334,7 @@ def warranty_generator():
         "decision_date": decision_date(start),
         "briefing": f"{age_label(t)}. The OEM covers bearing repairs, but only for faults reported "
                     "before they cause damage. The generator bearing has been getting warmer for a "
-                    f"week. The crew is busy, and it is only a 3-year-old machine. "
-                    f"{signal_note(series)} {money_note(t, c)}",
+                    f"week. The crew is busy, and it is only a 3-year-old machine.",
         "alarms": [{"t": ts(start, 19 * 24 + 3), "text": "WARNING: generator bearing temperature trend high"}],
         "costs": c,
         "series": series,
@@ -382,10 +360,9 @@ def old_generator():
         "id": "w1-old-generator", "week": 1, "title": "T01 - old generator", "source": "synthetic",
         "turbine": t, "component": "Generator bearing (drive end)",
         "decision_date": decision_date(start),
-        "briefing": f"{age_label(t)}. It is one of the first turbines of the farm, and the whole site "
-                    "will be repowered with new turbines in 6 months. The generator bearing temperature "
-                    "is rising. Repair quote: 180k EUR (generator overhaul). Dismantling now: 60k EUR, "
-                    f"and parts can be sold for about 40k EUR. {signal_note(series)} {money_note(t, c)}",
+        "briefing": f"{age_label(t)}. It is one of the first turbines of the farm. The generator bearing "
+                    "temperature is rising. Repair quote: 180k EUR (generator overhaul). Dismantling now: "
+                    "60k EUR, and parts can be sold for about 40k EUR.",
         "alarms": [{"t": ts(start, 18 * 24 + 6), "text": "WARNING: generator bearing temperature trend high"}],
         "costs": c,
         "series": series,

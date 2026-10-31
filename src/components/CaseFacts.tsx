@@ -6,6 +6,7 @@ export default function CaseFacts({ s }: { s: Scenario }) {
   const T = s.turbine
   const lifePct = Math.min(100, (T.age_years / T.design_life_years) * 100)
   const pastLife = T.age_years >= T.design_life_years
+  const repowering = T.repowering_in_years == null ? null : repoweringDate(s.decision_date, T.repowering_in_years)
   const visibleAlarms = s.alarms.filter((a) => a.t <= s.series.t[s.series.history_len - 1])
 
   return (
@@ -30,7 +31,7 @@ export default function CaseFacts({ s }: { s: Scenario }) {
 
       <p className="mt-4 leading-relaxed text-slate-700">{s.briefing}</p>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Fact label="Age vs design life">
           <div className="text-lg font-semibold text-slate-800">
             {T.age_years} <span className="text-sm font-normal text-slate-400">/ {T.design_life_years} years</span>
@@ -40,8 +41,27 @@ export default function CaseFacts({ s }: { s: Scenario }) {
           </div>
           {pastLife && <div className="mt-1 text-xs text-slate-500">{T.age_years - T.design_life_years} {T.age_years - T.design_life_years === 1 ? 'year' : 'years'} past design life</div>}
         </Fact>
-        <Fact label="Maintenance / repair">
+        <Fact label="Remaining life">
+          <div className="text-lg font-semibold text-slate-800">
+            {T.remaining_life_years} <span className="text-sm font-normal text-slate-400">years</span>
+          </div>
+        </Fact>
+        <Fact label="Warranty">
+          <div className="text-lg font-semibold text-slate-800">{T.under_warranty ? 'Yes' : 'No'}</div>
+          {T.under_warranty && <div className="text-xs text-slate-500">OEM covers planned repairs</div>}
+        </Fact>
+        <Fact label="Repowering">
+          <div className="text-lg font-semibold text-slate-800">{repowering ?? 'None planned'}</div>
+          {T.repowering_in_years != null && <div className="text-xs text-slate-500">{inTime(T.repowering_in_years)}</div>}
+        </Fact>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Fact label="Repair cost">
           <div className="text-lg font-semibold text-slate-800">{eur(s.costs.maintenance_eur)}</div>
+          {s.costs.maintenance_eur !== s.costs.maintenance_list_price_eur && (
+            <div className="text-xs text-slate-500">list price {eur(s.costs.maintenance_list_price_eur)}</div>
+          )}
         </Fact>
         <Fact label="Dismantle">
           <div className="text-lg font-semibold text-slate-800">{eur(s.costs.dismantle_eur)}</div>
@@ -50,6 +70,15 @@ export default function CaseFacts({ s }: { s: Scenario }) {
           <div className="text-lg font-semibold text-slate-800">
             {eur(s.costs.downtime_per_day_eur)} <span className="text-sm font-normal text-slate-400">/ day</span>
           </div>
+        </Fact>
+        <Fact label="Annual margin">
+          <div className="text-lg font-semibold text-slate-800">
+            {eur(T.annual_margin_eur)} <span className="text-sm font-normal text-slate-400">/ yr</span>
+          </div>
+        </Fact>
+        <Fact label="Parts resale value">
+          <div className="text-lg font-semibold text-slate-800">{eur(s.costs.resale_parts_eur)}</div>
+          <div className="text-xs text-slate-500">if dismantled intact</div>
         </Fact>
       </div>
 
@@ -71,6 +100,15 @@ export default function CaseFacts({ s }: { s: Scenario }) {
     </div>
   )
 }
+
+/** Decision date + N years, shown as e.g. "Aug 2025". */
+function repoweringDate(decisionDate: string, years: number) {
+  const d = new Date(decisionDate)
+  d.setUTCMonth(d.getUTCMonth() + Math.round(years * 12))
+  return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' })
+}
+
+const inTime = (years: number) => (years < 1 ? `in ${Math.round(years * 12)} months` : `in ${years} years`)
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (

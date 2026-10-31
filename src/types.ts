@@ -13,12 +13,28 @@ export interface Scenario {
   week: number
   title: string
   source: 'synthetic' // all cases are hand-designed fake data
-  turbine: { name: string; farm: string; age_years: number; design_life_years: number; rated_kw: number }
+  turbine: {
+    name: string
+    farm: string
+    age_years: number
+    design_life_years: number
+    rated_kw: number
+    remaining_life_years: number // until design life + extension, or until repowering
+    annual_margin_eur: number // revenue minus O&M per year
+    under_warranty: boolean
+    repowering_in_years: number | null // null = no repowering planned
+  }
   component: string
   decision_date: string
   briefing: string
   alarms: { t: string; text: string }[]
-  costs: { maintenance_eur: number; dismantle_eur: number; downtime_per_day_eur: number }
+  costs: {
+    maintenance_eur: number // 0 when under warranty
+    maintenance_list_price_eur: number
+    dismantle_eur: number
+    resale_parts_eur: number // intact parts, if dismantled now
+    downtime_per_day_eur: number
+  }
   series: {
     t: string[]
     history_len: number // index < history_len is visible before the decision
