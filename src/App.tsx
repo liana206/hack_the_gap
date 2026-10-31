@@ -51,24 +51,26 @@ export default function App() {
       .catch(() => setError(`Could not load scenario ${selectedId}`))
   }, [selectedId])
 
+  useEffect(() => setPlayed(null), [weekN])
+
   useEffect(() => localStorage.setItem(LOG_KEY, JSON.stringify(log)), [log])
 
   // Latest result per case (for the ✓/✗ marks) and first-try score per week.
-  const lastResult = useMemo(() => Object.fromEntries(log.map((e) => [e.caseId, e])), [log])
+  const weekLog = useMemo(() => log.filter((e) => e.week === weekN), [log, weekN])
+  const lastResult = useMemo(() => Object.fromEntries(weekLog.map((e) => [e.caseId, e])), [weekLog])
   const firstTry = useMemo(() => {
     const first: Record<string, LogEntry> = {}
-    for (const e of log) first[e.caseId] ??= e
+    for (const e of weekLog) first[e.caseId] ??= e
     return first
-  }, [log])
-  const weekCases = index.filter((c) => c.week === weekN)
-  const weekCorrect = weekCases.filter((c) => firstTry[c.id]?.correct).length
-  const weekPlayed = weekCases.filter((c) => firstTry[c.id]).length
+  }, [weekLog])
+  const weekCorrect = cases.filter((c) => firstTry[c.id]?.correct).length
+  const weekPlayed = cases.filter((c) => firstTry[c.id]).length
 
   function decide(decision: Answer, reason: string) {
     if (!scenario) return
     // Score from code against the real outcome, never from the LLM.
     const correct = decision === scenario.truth.answer
-    setLog((l) => [...l, { caseId: scenario.id, week: scenario.week, decision, reason, correct, time: new Date().toISOString() }])
+    setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, time: new Date().toISOString() }])
     setPlayed({ decision, reason })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -95,7 +97,7 @@ export default function App() {
             <div className="card-title">Learning log</div>
             <div className="mt-2 text-3xl font-semibold text-navy">
               {weekCorrect}
-              <span className="text-lg text-slate-400">/{weekCases.length || '–'}</span>
+              <span className="text-lg text-slate-400">/{cases.length || '–'}</span>
             </div>
             <div className="text-sm text-slate-500">
               Week {weekN}: correct on first try ({weekPlayed} played)
@@ -133,7 +135,7 @@ export default function App() {
                 </div>
                 <ConditionsChart s={scenario} revealed={!!played} />
               </div>
-              {!played && <DecisionPanel key={scenario.id} askReason={week.features.thinkFirst} onSubmit={decide} />}
+              {!played && <DecisionPanel key={`${weekN}-${scenario.id}`} askReason={week.features.thinkFirst} onSubmit={decide} />}
             </>
           )}
         </main>

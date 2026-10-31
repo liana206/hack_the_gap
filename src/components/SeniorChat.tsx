@@ -18,7 +18,7 @@ export default function SeniorChat({ week, s, decision, reason }: Props) {
   const [busy, setBusy] = useState(false)
   const [offline, setOffline] = useState(false)
   const started = useRef(false)
-  // Week 1: Sandra only speaks after the reveal, so she may know the truth.
+  // Sandra only speaks after the reveal, so she may know the truth.
   const system = buildSystemPrompt(week, s, decision, reason, true)
 
   async function send(history: ChatMessage[]) {
@@ -29,7 +29,7 @@ export default function SeniorChat({ week, s, decision, reason }: Props) {
         setOffline(true)
         const reply =
           history.length === 1
-            ? offlineFeedback(s, decision)
+            ? offlineFeedback(s, decision, reason)
             : 'I am in offline mode (no GEMINI_API_KEY in .env), so I cannot answer follow-up questions.'
         setMessages([...history, { role: 'assistant', content: reply }])
       } else {
@@ -40,7 +40,7 @@ export default function SeniorChat({ week, s, decision, reason }: Props) {
       const msg = (e as Error).message
       const reply =
         history.length === 1
-          ? offlineFeedback(s, decision, `Gemini unavailable: ${msg}`)
+          ? offlineFeedback(s, decision, reason, `Gemini unavailable: ${msg}`)
           : `⚠️ Could not reach the senior (${msg}). Try asking again in a moment.`
       setMessages([...history, { role: 'assistant', content: reply }])
     } finally {

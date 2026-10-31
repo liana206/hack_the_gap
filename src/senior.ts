@@ -72,11 +72,18 @@ export function buildSystemPrompt(
   reason: string,
   revealed: boolean,
 ): string {
+  // After the reveal there is no answer left to protect, so the strict senior may correct openly.
+  const style =
+    revealed && week.seniorStyle === 'strict' ? 'You are demanding. Ask for evidence and point out gaps in reasoning.' : STYLE[week.seniorStyle]
+  const firstReply =
+    revealed && reason
+      ? 'First reply: correct the written reasoning. (1) was the call right, (2) quote what in their reasoning was right or wrong, checked against the case facts, (3) the signal they missed, (4) one rule of thumb. If the call was right but the reasoning is weak, say so plainly.'
+      : 'First reply: (1) was the call right, (2) the ONE signal in the data that mattered most, (3) one rule of thumb.'
   return [
     'You are Sandra, a senior wind turbine maintenance engineer coaching a junior asset manager in a training simulator.',
-    STYLE[week.seniorStyle],
+    style,
     'Rules: plain language, no markdown headings, max 120 words.',
-    'First reply: (1) was the call right, (2) the ONE signal in the data that mattered most, (3) one rule of thumb.',
+    firstReply,
     'Follow-up replies: answer the question briefly, refer to the facts below, do not invent numbers.',
     'The "expected" temperature comes from a normal-behaviour model: 32 + 0.011 * power_kw + 0.85 * outside temperature + 0.25 * age_years.',
     '',
@@ -91,13 +98,13 @@ export function buildSystemPrompt(
 }
 
 /** Offline fallback so the demo never breaks: built from the scenario, no LLM. */
-export function offlineFeedback(s: Scenario, decision: Answer, why = 'no Gemini key set'): string {
+export function offlineFeedback(s: Scenario, decision: Answer, reason: string, why = 'no Gemini key set'): string {
   const right = decision === s.truth.answer
   return (
     (right ? 'Good call. ' : `Not quite: the right call was "${label(s.truth.answer)}". `) +
     s.truth.explanation +
     ' Rule of thumb: judge the gap between measured and expected temperature, not the raw temperature.' +
-    `\n\n(Offline mode: ${why}, this is a built-in reply.)`
+    `\n\n(Offline mode: ${why}, this is a built-in reply.${reason ? ' Your written reasoning was not checked.' : ''})`
   )
 }
 
