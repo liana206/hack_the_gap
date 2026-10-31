@@ -14,6 +14,8 @@ export type ReceiverKind =
   | 'factory'
   | 'recycler'
   | 'coprocessing'
+  | 'marketplace' // reclaimed-material dealer: stores and resells
+  | 'research'
 export type LocType = 'farm' | 'hub' | ReceiverKind
 
 export interface Lot {
@@ -29,6 +31,22 @@ export interface Lot {
   passport_pct: number
   item_status: 'product' | 'waste' // input from the sensor/maintenance data later
   has_geometry_model?: boolean // 3D blade model in the passport (open calls ask for it)
+  // Turbine-level lots (see turbines.ts):
+  available_year?: number // when this turbine is dismantled; default: farm end_of_life
+  pooled?: boolean // contributes to a larger receiver programme, so receiver minimums don't apply
+  turbine?: string // e.g. "T01"
+}
+
+// Per-turbine facts that override the generated defaults, e.g. turbines diagnosed in the Week 1–2 cases.
+export interface TurbineRecord {
+  id: string // "T01"
+  retire_year: number
+  reason: string
+  gym_case?: string // scenario id in public/scenarios
+  commissioned?: number
+  item_status?: 'product' | 'waste'
+  grades?: Partial<Record<Item, Grade>>
+  notes?: Partial<Record<Item, string>>
 }
 
 export interface Farm {
@@ -47,7 +65,8 @@ export interface Farm {
   regime: 'FR_2020' | 'none' // FR_2020: French rotor quota applies
   assumed?: string // what is assumed, not published
   source: string
-  lots: Lot[]
+  lots: Lot[] // whole-farm lots; per-turbine lots are derived from these
+  turbine_records?: TurbineRecord[]
 }
 
 export interface Hub {
@@ -87,6 +106,7 @@ export interface Receiver {
   avoided_co2_per_t: number // placeholder, t CO2 per t of material
   description: string
   precedent?: { label: string; url: string }
+  demand_source?: string // where the demand comes from: public tender, open call, marketplace, ...
 }
 
 export interface Params {
@@ -102,6 +122,7 @@ export interface Params {
   permit_eur_per_country: number
   certainty: Record<Stage, number>
   fr_rotor_quota: number
+  max_km: { blade: number; blade_segmented: number; steel: number; electrical: number } // non-fallback routes
   embodied_mj_per_kg: Record<Item, number> // placeholder, order of magnitude of the ICE database
   embodied_retention: Record<Item, [number, number, number, number]> // share kept per tier 1..4
   transport_mj_per_km: { standard: number; oversize: number }

@@ -55,6 +55,17 @@ export default function Reveal({ s, decision, reason, firstDecision, debate }: P
         </div>
       )}
 
+      {best === 'dismantle' && (
+        // Hand-off to week 4: the dismantled turbine's parts get matched to second-life uses.
+        <a href={`#/map?case=${s.id}`}
+          className="flex items-center justify-between gap-4 border-b border-slate-100 bg-sky-50 px-6 py-3 text-sm text-sky-900 hover:bg-sky-100">
+          <span>
+            <b>Next: second life.</b> {s.turbine.name} is being dismantled. Plan where its blades, tower and generator go.
+          </span>
+          <span className="shrink-0 font-medium">Open in Week 4 →</span>
+        </a>
+      )}
+
       <div className="grid gap-6 p-6 lg:grid-cols-2">
         <div className="space-y-4">
           <div>

@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import type { Check, Dataset, Farm, Lot, Plan, PlanId, Weights } from './types.ts'
-import { isFlagged } from './match.ts'
-import { ITEM_LABEL, ROUTE_COLORS, UNIT_LABEL, fmtEur, fmtGJ, fmtT } from './ui.ts'
+import { availableYear } from './match.ts'
+import { isDue, turbinesOf, type Turbine } from './turbines.ts'
+import { ITEM_LABEL, ROUTE_COLORS, UNIT_LABEL, fmtEur, fmtGJ, fmtT, type GymLog } from './ui.ts'
 import { GradeBadge } from './FarmList.tsx'
 
 export interface SignOff {
@@ -21,6 +22,8 @@ export interface LotView {
   excludedCount: number
   fingerprint: string
   signoff: SignOff
+  turbine?: Turbine
+  gym: GymLog[string] | null // the junior's decision on this turbine's gym case
 }
 
 interface Props {
@@ -48,14 +51,15 @@ export default function PlanPanel(p: Props) {
   return (
     <div className="space-y-3 p-4">
       <div>
-        <div className="text-xs text-slate-500">{farm.name}</div>
+        <div className="text-xs text-slate-500">{farm.name}{p.view.turbine && ` · turbine ${p.view.turbine.id}`}</div>
         <div className="flex items-center justify-between gap-2">
           <div className="text-lg font-semibold text-navy">{ITEM_LABEL[lot.item]}</div>
           <GradeBadge g={lot.grade} />
         </div>
         <div className="text-xs text-slate-500">
-          {lot.quantity} {UNIT_LABEL[lot.item]} · {lot.unit_mass_t} t each · free from ~{farm.end_of_life}
+          {lot.quantity} {UNIT_LABEL[lot.item]} · {lot.unit_mass_t} t each · free from {availableYear(farm, lot)}
         </div>
+        {p.view.turbine && <TurbineNote t={p.view.turbine} gym={p.view.gym} />}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -216,30 +220,52 @@ function SignOffBox({ view, planName, onSignoff }: { view: LotView; planName: st
   )
 }
 
+function TurbineNote({ t, gym }: { t: Turbine; gym: GymLog[string] | null }) {
+  return (
+    <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600">
+      <div><b className="text-navy">{t.id}</b> retires {t.retire_year}: {t.reason}</div>
+      {t.gym_case && (
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <span>
+            {gym
+              ? <>Junior's diagnosis: <b>{gym.decision === 'dismantle' ? 'dismantle' : gym.decision === 'maintenance' ? 'call maintenance' : 'nothing wrong'}</b> {gym.correct ? '✓' : '✗'}</>
+              : 'Diagnosis case not played yet'}
+          </span>
+          <a href={`#/case/${t.gym_case}`} className="shrink-0 text-accent hover:underline">Open case ↗</a>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Overview({ data, year, signedCount }: { data: Dataset; year: number; signedCount: number }) {
   const w = data.params.planning_window_years
-  const flagged = data.farms.filter((f) => isFlagged(f, year, w))
-  const blades = flagged.flatMap((f) => f.lots.filter((l) => l.item === 'blade'))
-  const ee = flagged.flatMap((f) => f.lots).reduce((s, l) => s + l.quantity * l.unit_mass_t * data.params.embodied_mj_per_kg[l.item], 0)
+  const due = data.farms.flatMap((f) => turbinesOf(f).filter((t) => isDue(t, year, w)))
+  const lots = due.flatMap((t) => t.lots)
+  const blades = lots.filter((l) => l.item === 'blade')
+  const ee = lots.reduce((s, l) => s + l.quantity * l.unit_mass_t * data.params.embodied_mj_per_kg[l.item], 0)
   return (
     <div className="space-y-4 p-4">
       <div>
         <div className="card-title">Fleet in {year}</div>
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <Metric k="Farms flagged" v={`${flagged.length} / ${data.farms.length}`} sub="inside the planning window" />
+          <Metric k="Turbines due" v={String(due.length)} sub={`retire by ${year + w} · ${new Set(due.map((t) => t.farm.id)).size} farms`} />
           <Metric k="Blades to place" v={String(blades.reduce((s, l) => s + l.quantity, 0))} sub={`${Math.round(blades.reduce((s, l) => s + l.quantity * l.unit_mass_t, 0))} t of composite`} />
-          <Metric k="Embodied energy at stake" v={fmtGJ(ee)} sub="all components of flagged farms" strong />
+          <Metric k="Embodied energy at stake" v={fmtGJ(ee)} sub="all components of turbines due" strong />
           <Metric k="Plans signed" v={String(signedCount)} sub="by a senior" />
         </div>
       </div>
       <ol className="space-y-2 text-sm text-slate-600">
-        <Step n={1}>Pick a wind farm on the left and open one of its components.</Step>
+        <Step n={1}>Open a wind farm on the left, pick a turbine that is due, then one of its components.</Step>
         <Step n={2}>The map draws its routes; the top 3 plans appear here with energy, cost and CO₂.</Step>
         <Step n={3}>Click any marker, route or legend entry for details.</Step>
         <Step n={4}>Propose the plan; a senior signs it.</Step>
       </ol>
+      <div className="rounded-lg bg-sky-50 px-3 py-2 text-[11px] text-sky-800">
+        Monte Mele holds the turbines from the Week 1–2 cases. T01, diagnosed for dismantling there, is the first to retire.
+      </div>
       <div className="rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-800">
-        Pseudo data: farm sites and specs are public Alpiq data; components, hubs, receivers, prices and energy/CO₂ factors are invented placeholders.
+        Pseudo data: farm sites and specs are public Alpiq data; turbines, components, hubs, receivers, prices and energy/CO₂ factors are invented placeholders.
       </div>
     </div>
   )

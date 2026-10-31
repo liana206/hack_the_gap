@@ -23,6 +23,8 @@ export const TYPE_LABEL: Record<LocType, string> = {
   factory: 'Factory',
   recycler: 'Recycler',
   coprocessing: 'Co-processing',
+  marketplace: 'Reclaimed-material dealer',
+  research: 'Research',
 }
 export const COUNTRY_LABEL: Record<string, string> = {
   IT: 'Italy', FR: 'France', CH: 'Switzerland', SE: 'Sweden', ES: 'Spain', DE: 'Germany', NL: 'Netherlands', DK: 'Denmark',
@@ -40,6 +42,8 @@ export const TYPE_COLOR: Record<LocType, string> = {
   factory: '#64748b',
   recycler: '#64748b',
   coprocessing: '#64748b',
+  marketplace: '#0d9488',
+  research: '#16a34a',
 }
 // Route colours by allocation order (first = largest share in the plan).
 export const ROUTE_COLORS = ['#059669', '#0d9488', '#0284c7', '#7c3aed', '#c2410c', '#a16207']
@@ -50,8 +54,10 @@ export const LEGEND: { key: string; label: string; types: LocType[]; shape: 'cir
     text: 'Donor site. Items are dismantled here; condition data comes from the farm\'s sensor and maintenance record. An orange ring means the farm is inside the 4-year planning window.' },
   { key: 'hub', label: 'Storage hub', types: ['hub'], shape: 'square',
     text: 'Interim storage near the farm. Items wait here after dismantling until a destination is confirmed, so leg 2 is planned only once a receiver says yes.' },
-  { key: 'build', label: 'Construction / infrastructure / open call', types: ['open_call', 'infrastructure', 'street_furniture', 'construction'], shape: 'diamond',
+  { key: 'build', label: 'Construction / infrastructure / open call', types: ['open_call', 'infrastructure', 'street_furniture', 'construction', 'research'], shape: 'diamond',
     text: 'Second-life uses in buildings and public works: architecture open calls, planned bridges, noise barriers, street furniture. Pseudo targets modelled on real projects.' },
+  { key: 'dealer', label: 'Reclaimed-material dealer', types: ['marketplace'], shape: 'diamond',
+    text: 'Dealers that buy intact elements (e.g. tower sections), store them and resell them for reuse. Useful when no construction project is ready yet: the steel stays a product instead of going to a mill.' },
   { key: 'windfarm', label: 'Other wind farm', types: ['wind_farm'], shape: 'diamond',
     text: 'Operating farms that reuse compatible generators, converters and other electrical components as spares (tier 1, reuse as-is).' },
   { key: 'industry', label: 'Factory / recycler / co-processing', types: ['factory', 'recycler', 'coprocessing'], shape: 'diamond',
@@ -69,6 +75,19 @@ export interface ViewState {
   seg: boolean
   w: Weights
   card: Card | null
+  gymCase: string | null // arriving from a Week 1–2 report: open that case's turbine
+}
+
+// Latest decision per case from the gym's learning log (written by App.tsx in localStorage).
+export type GymLog = Record<string, { decision: string; correct: boolean; week: number }>
+
+export function readGymLog(): GymLog {
+  try {
+    const log: { caseId: string; decision: string; correct: boolean; week: number }[] = JSON.parse(localStorage.getItem('turbine-gym-log-v1') ?? '[]')
+    return Object.fromEntries(log.map((e) => [e.caseId, { decision: e.decision, correct: e.correct, week: e.week }]))
+  } catch {
+    return {}
+  }
 }
 
 // One row per map location, so farms, hubs and receivers are drawn alike.
@@ -109,6 +128,7 @@ export function parseHash(hash: string, fallbackYear: number): ViewState {
       ? { timing: w[0], condition: w[1], co2: w[2], cost: w[3], certainty: w[4] }
       : DEFAULT_WEIGHTS,
     card: card?.startsWith('e:') ? { kind: 'entity', id: card.slice(2) } : card?.startsWith('l:') ? { kind: 'legend', key: card.slice(2) } : null,
+    gymCase: q.get('case'),
   }
 }
 
@@ -121,6 +141,7 @@ export function toHash(s: ViewState): string {
   const w = s.w
   if (Object.values(w).some((x) => x !== 1)) q.set('w', [w.timing, w.condition, w.co2, w.cost, w.certainty].join(','))
   if (s.card) q.set('card', s.card.kind === 'entity' ? `e:${s.card.id}` : `l:${s.card.key}`)
+  if (s.gymCase) q.set('case', s.gymCase)
   return `#/map?${q}`
 }
 

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { rankLot } from './match.ts'
 import { allocateLot, buildPlans, checkPlan, explainPlan } from './allocate.ts'
+import { findLot, turbineByCase, turbinesOf } from './turbines.ts'
 import type { Ctx, Dataset } from './types.ts'
 
 const data: Dataset = JSON.parse(readFileSync(new URL('../../public/reuse/dataset.json', import.meta.url), 'utf8'))
@@ -79,13 +80,32 @@ test('Cers sign-off is blocked until the co-owner approves', () => {
 })
 
 test('waste lots: storage limit and cross-border notification', () => {
-  const { farm, lot } = lotOf('monte-mele', 'blade') // item_status: waste, free from 2030
-  const { routes, excluded } = rankLot(farm, lot, ctx({ year: 2027 }))
+  const { farm, lot } = findLot(data, 'monte-mele:T01:blade')! // T01: dismantled 2025, status waste
+  const { routes, excluded } = rankLot(farm, lot, ctx({ year: 2025 }))
   assert.match(excluded.find((e) => e.receiver.id === 'R4')!.reason, /counts as landfill/)
-  const spain = routes.find((r) => r.receiver.id === 'R8')!
-  assert.equal(spain.notification, true)
-  const italy = routes.find((r) => r.receiver.id === 'R9')!
-  assert.equal(italy.notification, false)
+  assert.equal(routes.find((r) => r.receiver.id === 'R24')!.notification, false) // stays in Italy
+
+  // A French waste lot going to Swiss thermal treatment crosses a border.
+  const roussas = findLot(data, 'roussas:T04:blade')!
+  const wasteLot = { ...roussas.lot, item_status: 'waste' as const }
+  const basel = rankLot(roussas.farm, wasteLot, ctx({ year: 2028 })).routes.find((r) => r.receiver.id === 'R10')!
+  assert.equal(basel.notification, true)
+  assert.ok(basel.badges.some((b) => /VeVA/.test(b.text)))
+})
+
+test('local options win: Sicilian steel stays in Sicily, far routes are excluded', () => {
+  const t = turbinesOf(data.farms.find((f) => f.id === 'rocca-rossa')!)[0]
+  const { farm, lot } = findLot(data, t.lots.find((l) => l.item === 'steel')!.id)!
+  const { routes, excluded } = rankLot(farm, lot, ctx({ year: t.retire_year - 2 }))
+  assert.ok(routes.every((r) => r.leg1.km + r.leg2.km <= data.params.max_km.steel))
+  assert.ok(excluded.some((e) => /Too far|Closer recycling/.test(e.reason)))
+})
+
+test('Monte Mele T08 steel can go to a reclaimed-steel dealer instead of a mill', () => {
+  const { farm, lot } = findLot(data, 'monte-mele:T08:steel')!
+  const c = ctx({ year: 2025 })
+  const plan = buildPlans(lot, rankLot(farm, lot, c).routes, c)[0]
+  assert.equal(plan.allocation.lines[0].route.receiver.kind, 'marketplace')
 })
 
 test('open calls close after their deadline', () => {
@@ -119,4 +139,34 @@ test('lowest-risk plan only uses selected or contracted demand', () => {
   const safe = buildPlans(lot, rankLot(farm, lot, c).routes, c).find((p) => p.id === 'low_risk')!
   assert.ok(safe.allocation.lines.every((l) => ['selected', 'contracted'].includes(l.route.receiver.stage)))
   assert.equal(safe.totals.certainty, 1)
+})
+
+test('turbines of one farm retire in different years', () => {
+  const farm = data.farms.find((f) => f.id === 'rocca-rossa')!
+  const years = new Set(turbinesOf(farm).map((t) => t.retire_year))
+  assert.ok(years.size > 3)
+  assert.equal(turbinesOf(farm).length, farm.turbines)
+})
+
+test('the Week 2 T01 case leads to T01 at Monte Mele, retiring in 2025', () => {
+  const t = turbineByCase(data, 'w1-old-generator')!
+  assert.equal(t.farm.id, 'monte-mele')
+  assert.equal(t.id, 'T01')
+  assert.equal(t.retire_year, 2025)
+})
+
+test("T01's damaged generator cannot go to another wind farm", () => {
+  const { farm, lot } = findLot(data, 'monte-mele:T01:electrical')!
+  const { routes, excluded } = rankLot(farm, lot, ctx({ year: 2025 }))
+  assert.ok(routes.every((r) => r.receiver.kind !== 'wind_farm'))
+  assert.ok(excluded.some((e) => e.receiver.kind === 'wind_farm'))
+})
+
+test('a single turbine can join a large programme (pooled minimum)', () => {
+  const first = turbinesOf(data.farms.find((f) => f.id === 'rocca-rossa')!)[0] // earliest to retire
+  const { farm, lot } = findLot(data, first.lots.find((l) => l.item === 'blade')!.id)!
+  const c = ctx({ year: 2032 })
+  const routes = rankLot(farm, lot, c).routes
+  assert.ok(routes.some((r) => r.receiver.id === 'R4'), 'noise barrier (min 20) still valid for 3 blades')
+  assert.equal(allocateLot(lot, routes, c).unallocated, 0)
 })

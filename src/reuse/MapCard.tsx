@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import type { Dataset, Exclusion, Farm, Hub, Lot, Params, Plan, Receiver, Route, Weights } from './types.ts'
 import { isFlagged } from './match.ts'
+import { firstRetire, isDue, turbinesOf } from './turbines.ts'
 import {
   COUNTRY_LABEL, ITEM_LABEL, LEGEND, ROUTE_COLORS, STAGE_LABEL, TIER_LABEL, TYPE_COLOR, TYPE_LABEL, UNIT_LABEL,
   fmtEur, fmtGJ, fmtT, type Card,
@@ -90,12 +91,14 @@ function FarmCard({ f, year, params, lotId, onLot }: { f: Farm; year: number; pa
         ['Turbines', `${f.turbines} × ${f.model}`],
         ['Capacity', `${f.mw} MW`],
         ['In service', `${f.commissioned}`],
-        ['End of life (est.)', `~${f.end_of_life}`],
+        ['First turbine retires', String(firstRetire(f))],
+        ['Site end of life (est.)', `~${f.end_of_life}`],
         ['Alpiq share', `${Math.round(f.alpiq_share * 100)}%`],
-        ['Status', flagged ? `flagged in ${year}` : `flag from ${f.end_of_life - params.planning_window_years}`],
+        ['Status', flagged ? `flagged in ${year}` : `flag from ${firstRetire(f) - params.planning_window_years}`],
       ]} />
       {f.assumed && <div className="mt-2 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] text-amber-800">Assumed: {f.assumed}</div>}
-      <div className="card-title mb-1 mt-3">Components</div>
+      <DueTurbines f={f} year={year} params={params} onLot={onLot} />
+      <div className="card-title mb-1 mt-3">Whole farm</div>
       <div className="space-y-1">
         {f.lots.map((l) => (
           <button key={l.id} onClick={() => onLot(l.id)}
@@ -108,6 +111,27 @@ function FarmCard({ f, year, params, lotId, onLot }: { f: Farm; year: number; pa
       <div className="mt-2 text-[11px] text-slate-400">
         Site and specs: <a href={f.source} target="_blank" rel="noreferrer" className="underline">Alpiq (public)</a>; component data is pseudo.
       </div>
+    </>
+  )
+}
+
+function DueTurbines({ f, year, params, onLot }: { f: Farm; year: number; params: Params; onLot: (id: string) => void }) {
+  const due = turbinesOf(f).filter((t) => isDue(t, year, params.planning_window_years))
+  return (
+    <>
+      <div className="card-title mb-1 mt-3">Turbines due ({due.length} of {f.turbines})</div>
+      {due.length ? (
+        <div className="flex flex-wrap gap-1">
+          {due.map((t) => (
+            <button key={t.id} onClick={() => onLot(t.lots[0].id)} title={t.reason}
+              className="rounded-md border border-orange-200 bg-orange-50 px-1.5 py-0.5 font-mono text-[11px] text-orange-800 hover:border-orange-400">
+              {t.id} · {t.retire_year}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="text-xs text-slate-400">None within {params.planning_window_years} years of {year}.</div>
+      )}
     </>
   )
 }
@@ -144,6 +168,9 @@ function ReceiverCard({ r, ctx, params, weights }: { r: Receiver; ctx: LotContex
       <Head color={TYPE_COLOR[r.kind]} shape="diamond" title={r.name}
         sub={`${TYPE_LABEL[r.kind]} · ${COUNTRY_LABEL[r.country] ?? r.country} · tier ${r.tier} ${TIER_LABEL[r.tier]}`} pseudo />
       <p className="text-xs text-slate-600">{r.description}</p>
+      {r.demand_source && (
+        <div className="mt-1 text-[11px] text-slate-500">Demand source: <b className="text-slate-700">{r.demand_source}</b> · {STAGE_LABEL[r.stage]}</div>
+      )}
 
       {ctx && (
         <div className="mt-2">
