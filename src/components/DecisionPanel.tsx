@@ -3,7 +3,12 @@ import { ANSWERS, type Answer } from '../types'
 
 const MIN_REASON = 15
 
-export default function DecisionPanel({ onSubmit }: { onSubmit: (d: Answer, reason: string) => void }) {
+interface Props {
+  askReason: boolean // weeks with thinkFirst: write a reason, then lock in. Otherwise a click decides.
+  onSubmit: (d: Answer, reason: string) => void
+}
+
+export default function DecisionPanel({ askReason, onSubmit }: Props) {
   const [choice, setChoice] = useState<Answer | null>(null)
   const [reason, setReason] = useState('')
   const ready = choice !== null && reason.trim().length >= MIN_REASON
@@ -11,7 +16,9 @@ export default function DecisionPanel({ onSubmit }: { onSubmit: (d: Answer, reas
   return (
     <div className="card p-6">
       <h3 className="text-lg font-semibold text-navy">Your call</h3>
-      <p className="text-sm text-slate-500">You decide. The senior only comments after you commit.</p>
+      <p className="text-sm text-slate-500">
+        {askReason ? 'You decide. The senior only comments after you commit.' : 'You decide: click your answer. The senior then explains the case.'}
+      </p>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {ANSWERS.map((a) => {
@@ -19,7 +26,7 @@ export default function DecisionPanel({ onSubmit }: { onSubmit: (d: Answer, reas
           return (
             <button
               key={a.id}
-              onClick={() => setChoice(a.id)}
+              onClick={() => (askReason ? setChoice(a.id) : onSubmit(a.id, ''))}
               aria-pressed={on}
               className={`rounded-2xl border-2 p-4 text-left transition ${
                 on ? 'border-accent bg-accent-soft shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
@@ -33,29 +40,33 @@ export default function DecisionPanel({ onSubmit }: { onSubmit: (d: Answer, reas
         })}
       </div>
 
-      <label className="mt-5 block">
-        <span className="text-sm font-medium text-slate-700">What in the data made you decide this?</span>
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={3}
-          placeholder="e.g. the measured temperature is drifting above the expected line while power is normal…"
-          className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
-      </label>
+      {askReason && (
+        <>
+          <label className="mt-5 block">
+            <span className="text-sm font-medium text-slate-700">What in the data made you decide this?</span>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+              placeholder="e.g. the measured temperature is drifting above the expected line while power is normal…"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            />
+          </label>
 
-      <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-slate-400">
-          {reason.trim().length < MIN_REASON ? `Write at least ${MIN_REASON} characters.` : 'Ready.'}
-        </span>
-        <button
-          disabled={!ready}
-          onClick={() => choice && onSubmit(choice, reason.trim())}
-          className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Lock in decision & reveal
-        </button>
-      </div>
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-xs text-slate-400">
+              {reason.trim().length < MIN_REASON ? `Write at least ${MIN_REASON} characters.` : 'Ready.'}
+            </span>
+            <button
+              disabled={!ready}
+              onClick={() => choice && onSubmit(choice, reason.trim())}
+              className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Lock in decision & reveal
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }

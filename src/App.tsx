@@ -124,16 +124,13 @@ export default function App() {
           ) : (
             <>
               {played && <Reveal s={scenario} decision={played.decision} reason={played.reason} />}
+              {played && <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} />}
               <CaseFacts s={scenario} />
               <div className="grid gap-6 2xl:grid-cols-2">
                 <TemperatureChart s={scenario} revealed={!!played} />
                 <ConditionsChart s={scenario} revealed={!!played} />
               </div>
-              {played ? (
-                <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} />
-              ) : (
-                <DecisionPanel key={scenario.id} onSubmit={decide} />
-              )}
+              {!played && <DecisionPanel key={scenario.id} askReason={week.features.thinkFirst} onSubmit={decide} />}
             </>
           )}
         </main>

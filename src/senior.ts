@@ -86,7 +86,7 @@ export function buildSystemPrompt(
     revealed ? `TRUTH (revealed):\n${summarizeTruth(s)}` : 'The outcome is NOT known yet. Do not guess it.',
     '',
     `JUNIOR'S DECISION: ${label(decision)}`,
-    `JUNIOR'S REASON: ${reason}`,
+    reason ? `JUNIOR'S REASON: ${reason}` : 'The junior gave no written reason, so explain the case; do not comment on their reasoning.',
   ].join('\n')
 }
 

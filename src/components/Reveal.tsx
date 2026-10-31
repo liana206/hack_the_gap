@@ -27,10 +27,12 @@ export default function Reveal({ s, decision, reason }: { s: Scenario; decision:
             <div className="card-title mb-1">Why</div>
             <p className="leading-relaxed text-slate-700">{s.truth.explanation}</p>
           </div>
-          <div>
-            <div className="card-title mb-1">Your reasoning</div>
-            <p className="rounded-xl bg-slate-50 p-3 text-sm italic text-slate-600">“{reason}”</p>
-          </div>
+          {reason && (
+            <div>
+              <div className="card-title mb-1">Your reasoning</div>
+              <p className="rounded-xl bg-slate-50 p-3 text-sm italic text-slate-600">“{reason}”</p>
+            </div>
+          )}
         </div>
 
         <div>

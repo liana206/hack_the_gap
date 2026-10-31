@@ -3,7 +3,7 @@
 Hack the Gap 2026 · Alpiq challenge · Track B "Judgement Gym".
 
 A junior asset manager practises wind turbine maintenance calls on historical SCADA data:
-**nothing wrong / call maintenance / dismantle**. They must explain their reasoning, then
+**nothing wrong / call maintenance / dismantle**. From week 2 on they must also explain their reasoning. Then
 the hidden future is revealed, the decision is scored **in code against the real outcome**,
 and an AI senior ("Sandra", Gemini) coaches them. A learning log tracks first-try accuracy.
 
