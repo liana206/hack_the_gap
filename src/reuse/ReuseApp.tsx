@@ -103,7 +103,7 @@ export default function ReuseApp() {
   const cardId = view.card?.kind === 'entity' ? view.card.id : null
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-5.5rem)] max-w-[1800px] flex-col px-4 py-3">
+    <div className="mx-auto flex h-[calc(100vh-8.5rem)] max-w-[1800px] flex-col px-4 py-3">
       <div className="mb-2 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
           <h2 className="text-lg font-semibold text-navy">Reuse Matching Map</h2>

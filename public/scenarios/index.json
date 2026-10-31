@@ -82,5 +82,33 @@
     "title": "T08 - generator check",
     "turbine": "T08",
     "age_years": 24
+  },
+  {
+    "id": "w4-repowering-soon",
+    "week": 4,
+    "title": "T06 - generator check",
+    "turbine": "T06",
+    "age_years": 22
+  },
+  {
+    "id": "w4-extension-ending",
+    "week": 4,
+    "title": "T10 - generator check",
+    "turbine": "T10",
+    "age_years": 24
+  },
+  {
+    "id": "w4-old-but-cheap-fix",
+    "week": 4,
+    "title": "T04 - gearbox check",
+    "turbine": "T04",
+    "age_years": 20
+  },
+  {
+    "id": "w4-old-and-fine",
+    "week": 4,
+    "title": "T05 - end of design life review",
+    "turbine": "T05",
+    "age_years": 20
   }
 ]

@@ -73,7 +73,7 @@ export default function Reveal({ s, decision, reason, firstDecision, debate }: P
           <span>
             <b>Next: second life.</b> {s.turbine.name} is being dismantled. Plan where its blades, tower and generator go.
           </span>
-          <span className="shrink-0 font-medium">Open in Stage 4 →</span>
+          <span className="shrink-0 rounded-xl bg-navy px-4 py-2 font-semibold text-white">Open the map →</span>
         </a>
       )}
 

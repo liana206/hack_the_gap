@@ -22,22 +22,32 @@ const loadLog = (): LogEntry[] => {
   }
 }
 
+const caseWeek = (hash: string) => {
+  const w = hash.match(/^#\/case\/w(\d)-/)?.[1]
+  return w ? Number(w) : null
+}
+
 export default function App() {
-  // Links between weeks: #/map?... opens the week 4 reuse map, #/case/<id> opens that case in week 2.
-  const [weekN, setWeekN] = useState(() => (/^#\/map/.test(location.hash) ? 4 : /^#\/case\//.test(location.hash) ? 2 : 1))
+  // Links between weeks: #/map?... opens the week 4 reuse map, #/case/<id> opens that case in its own week.
+  const [weekN, setWeekN] = useState(() => (/^#\/map/.test(location.hash) ? 4 : caseWeek(location.hash) ?? 1))
   const [index, setIndex] = useState<ScenarioIndexEntry[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(() => location.hash.match(/^#\/case\/([\w-]+)/)?.[1] ?? null)
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [log, setLog] = useState<LogEntry[]>(loadLog)
   const [pending, setPending] = useState<{ decision: Answer; reason: string } | null>(null) // waiting for the final call
   const [error, setError] = useState<string | null>(null)
+  const [mapOpen, setMapOpen] = useState(() => /^#\/map/.test(location.hash))
 
   useEffect(() => {
     const onHash = () => {
-      if (/^#\/map/.test(location.hash)) setWeekN(4)
+      if (/^#\/map/.test(location.hash)) {
+        setWeekN(4)
+        setMapOpen(true)
+      }
       const c = location.hash.match(/^#\/case\/([\w-]+)/)?.[1]
       if (c) {
-        setWeekN(2)
+        setWeekN(caseWeek(location.hash) ?? 2)
+        setMapOpen(false)
         setSelectedId(c)
         window.scrollTo({ top: 0 })
       }
@@ -78,6 +88,10 @@ export default function App() {
 
   useEffect(() => localStorage.setItem(LOG_KEY, JSON.stringify(log)), [log])
 
+  function closeMap() {
+    setMapOpen(false)
+  }
+
   // Latest result per case (for the ✓/✗ marks) and first-try score per week.
   const weekLog = useMemo(() => log.filter((e) => e.week === weekN), [log, weekN])
   const lastResult = useMemo(() => Object.fromEntries(weekLog.map((e) => [e.caseId, e])), [weekLog])
@@ -101,6 +115,8 @@ export default function App() {
     ...entry,
     debate: entry.debate && { ...entry.debate, missing: entry.debate.missing ?? [], satisfied: entry.debate.satisfied ?? false },
   }
+  // Stage 4: a case that really ends in dismantling links from its result to the map.
+  const goesToMap = !!played && week.features.secondLife && scenario?.truth.answer === 'dismantle'
 
   function firstCall(decision: Answer, reason: string) {
     if (week.features.traps && scenario?.challenge) setPending({ decision, reason })
@@ -124,14 +140,42 @@ export default function App() {
             <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">Alpiq · Hack the Gap</div>
             <h1 className="text-xl font-semibold">From Onboarding To Ownership</h1>
           </div>
-          <WeekPicker week={weekN} onChange={setWeekN} />
+          <WeekPicker
+            week={weekN}
+            onChange={(n) => {
+              if (n === weekN) closeMap()
+              else {
+                setWeekN(n)
+                setMapOpen(false)
+              }
+            }}
+          />
         </div>
       </header>
 
-      {week.features.secondLife ? (
-        <ReuseApp />
-      ) : (
-      <div className="mx-auto grid max-w-[1400px] gap-6 px-6 py-6 lg:grid-cols-[280px_1fr]">
+      {mapOpen && (
+        <>
+          <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3 px-4 pt-3 text-sm">
+            <span className="text-slate-700">
+              {goesToMap && played && scenario ? (
+                <>
+                  <b className={played.decision === 'dismantle' ? 'text-emerald-700' : 'text-rose-700'}>
+                    {played.decision === 'dismantle' ? '✓ Right call.' : '✗ Not the right call.'}
+                  </b>{' '}
+                  {scenario.turbine.name} is being dismantled. Plan where its parts go.
+                </>
+              ) : (
+                'Second-life map'
+              )}
+            </span>
+            <button onClick={closeMap} className="rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-2">
+              {goesToMap ? '← Back to the result and Sandra' : '← Back to the cases'}
+            </button>
+          </div>
+          <ReuseApp />
+        </>
+      )}
+      <div className={`mx-auto max-w-[1400px] gap-6 px-6 py-6 lg:grid-cols-[280px_1fr] ${mapOpen ? 'hidden' : 'grid'}`}>
         <aside className="space-y-4">
           <div className="card p-4">
             <div className="card-title mb-3 px-1">Cases</div>
@@ -187,7 +231,6 @@ export default function App() {
           )}
         </main>
       </div>
-      )}
     </div>
   )
 }
