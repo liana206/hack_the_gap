@@ -1,0 +1,22 @@
+[
+  {
+    "id": "w1-healthy",
+    "week": 1,
+    "title": "T07 - routine check"
+  },
+  {
+    "id": "w1-gearbox",
+    "week": 1,
+    "title": "T03 - gearbox running warm"
+  },
+  {
+    "id": "w1-heatwave",
+    "week": 1,
+    "title": "T11 - heatwave warning"
+  },
+  {
+    "id": "w1-old-generator",
+    "week": 1,
+    "title": "T01 - old generator"
+  }
+]
