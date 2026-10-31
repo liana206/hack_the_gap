@@ -17,6 +17,26 @@
   }
 }
 
+/* Reuse map: calm the OSM colours so markers and routes stand out */
+.reuse-tiles {
+  filter: grayscale(0.85) brightness(1.04) contrast(0.9);
+}
+
+/* Reuse map: distance labels on route lines */
+.leaflet-tooltip.km-label {
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(15, 30, 54, 0.2);
+  color: #0f1e36;
+  font-size: 10px;
+  font-weight: 600;
+}
+.leaflet-tooltip.km-label::before {
+  display: none;
+}
+
 /* Recharts: no focus outline box around charts on click */
 .recharts-wrapper:focus,
 .recharts-surface:focus {
