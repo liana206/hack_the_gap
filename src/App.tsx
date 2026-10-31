@@ -6,6 +6,7 @@ import DecisionPanel from './components/DecisionPanel'
 import Reveal from './components/Reveal'
 import SeniorChat from './components/SeniorChat'
 import WeekPicker from './components/WeekPicker'
+import ReuseApp from './reuse/ReuseApp'
 import type { Answer, LogEntry, Scenario, ScenarioIndexEntry } from './types'
 import { WEEKS } from './weeks'
 
@@ -20,7 +21,8 @@ const loadLog = (): LogEntry[] => {
 }
 
 export default function App() {
-  const [weekN, setWeekN] = useState(1)
+  // A reuse-map link (#/map?...) opens week 4 directly.
+  const [weekN, setWeekN] = useState(() => (/^#\/map/.test(location.hash) ? 4 : 1))
   const [index, setIndex] = useState<ScenarioIndexEntry[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [scenario, setScenario] = useState<Scenario | null>(null)
@@ -85,6 +87,9 @@ export default function App() {
         </div>
       </header>
 
+      {week.features.secondLife ? (
+        <ReuseApp />
+      ) : (
       <div className="mx-auto grid max-w-[1400px] gap-6 px-6 py-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-4">
           <div className="card p-4">
@@ -138,6 +143,7 @@ export default function App() {
           )}
         </main>
       </div>
+      )}
     </div>
   )
 }

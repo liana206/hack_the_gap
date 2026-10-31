@@ -2,7 +2,7 @@ import { WEEKS } from '../weeks'
 
 export default function WeekPicker({ week, onChange }: { week: number; onChange: (n: number) => void }) {
   return (
-    <nav className="flex gap-2">
+    <nav className="flex max-w-full gap-2 overflow-x-auto">
       {WEEKS.map((w) => {
         const active = w.n === week
         return (

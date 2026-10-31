@@ -1,0 +1,226 @@
+{
+  "farms": [
+    {
+      "id": "monte-mele", "name": "Monte Mele", "country": "IT", "place": "Agrigento / Realmonte, Sicily",
+      "lat": 37.31, "lon": 13.46, "model": "G52 (assumed)", "turbines": 11, "mw": 9,
+      "commissioned": 2005, "end_of_life": 2030, "alpiq_share": 1, "regime": "none",
+      "assumed": "Turbine model not published; 850 kW class assumed (Gamesa G52).",
+      "source": "https://www.alpiq.com/energy/assets/wind-power",
+      "lots": [
+        { "id": "monte-mele-blade", "item": "blade", "quantity": 33, "unit_mass_t": 2.5, "length_m": 25, "grade": "C", "repairs": "Leading-edge erosion on most blades; 4 lightning repairs", "passport_pct": 55, "item_status": "waste" },
+        { "id": "monte-mele-steel", "item": "steel", "quantity": 22, "unit_mass_t": 28, "length_m": 22, "diameter_m": 2.8, "grade": "C", "repairs": "Coating renewed 2017; corrosion at flanges", "passport_pct": 60, "item_status": "waste" },
+        { "id": "monte-mele-electrical", "item": "electrical", "quantity": 11, "unit_mass_t": 9, "model": "G52", "grade": "C", "repairs": "3 generator rewinds", "passport_pct": 50, "item_status": "waste" }
+      ]
+    },
+    {
+      "id": "ennese", "name": "Ennese", "country": "IT", "place": "Ramacca, Raddusa, Castel di Iudica, Sicily",
+      "lat": 37.42, "lon": 14.62, "model": "ECO 80", "turbines": 47, "mw": 70.5,
+      "commissioned": 2008, "end_of_life": 2033, "alpiq_share": 1, "regime": "none",
+      "source": "https://alpiq.com/energy/assets/wind-power/ennese-wind-farm",
+      "lots": [
+        { "id": "ennese-blade", "item": "blade", "quantity": 141, "unit_mass_t": 6.5, "length_m": 39, "grade": "C", "repairs": "Avg. 3 leading-edge repairs per blade; 6 trailing-edge cracks", "passport_pct": 70, "item_status": "product" },
+        { "id": "ennese-steel", "item": "steel", "quantity": 141, "unit_mass_t": 45, "length_m": 26, "diameter_m": 4.0, "grade": "B", "repairs": "Bolt re-tensioning campaigns; no structural findings", "passport_pct": 75, "item_status": "product" },
+        { "id": "ennese-electrical", "item": "electrical", "quantity": 47, "unit_mass_t": 12, "model": "ECO 80", "grade": "B", "repairs": "Converter upgrade 2019", "passport_pct": 80, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "cattolica-eraclea", "name": "Cattolica Eraclea (Enpower 3)", "country": "IT", "place": "Agrigento province, Sicily",
+      "lat": 37.44, "lon": 13.40, "model": "G8X", "turbines": 20, "mw": 40,
+      "commissioned": 2011, "end_of_life": 2036, "alpiq_share": 1, "regime": "none",
+      "source": "https://alpiq.com/energy/assets/wind-power/cattolica-eraclea-wind-farm",
+      "lots": [
+        { "id": "cattolica-eraclea-blade", "item": "blade", "quantity": 60, "unit_mass_t": 7, "length_m": 42, "grade": "A", "repairs": "1 leading-edge repair on 9 blades; no structural findings", "passport_pct": 92, "item_status": "product", "has_geometry_model": true },
+        { "id": "cattolica-eraclea-steel", "item": "steel", "quantity": 60, "unit_mass_t": 50, "length_m": 26, "diameter_m": 4.2, "grade": "A", "repairs": "None recorded", "passport_pct": 90, "item_status": "product" },
+        { "id": "cattolica-eraclea-electrical", "item": "electrical", "quantity": 20, "unit_mass_t": 13, "model": "G8X", "grade": "A", "repairs": "Gearbox oil-cooling retrofit 2022", "passport_pct": 90, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "rocca-rossa", "name": "Rocca Rossa (Aerorossa)", "country": "IT", "place": "Caltanissetta / Palermo / Agrigento, Sicily",
+      "lat": 37.70, "lon": 13.65, "model": "G90", "turbines": 42, "mw": 84,
+      "commissioned": 2011, "end_of_life": 2036, "alpiq_share": 1, "regime": "none",
+      "source": "https://www.alpiq.com/energy/assets/wind-power/rocca-rossa-wind-farm",
+      "lots": [
+        { "id": "rocca-rossa-blade", "item": "blade", "quantity": 126, "unit_mass_t": 7.5, "length_m": 44, "grade": "B", "repairs": "Avg. 2 leading-edge repairs per blade; 3 lightning-receptor repairs", "passport_pct": 85, "item_status": "product", "has_geometry_model": true },
+        { "id": "rocca-rossa-steel", "item": "steel", "quantity": 126, "unit_mass_t": 52, "length_m": 26, "diameter_m": 4.2, "grade": "B", "repairs": "Flange corrosion treated 2024", "passport_pct": 85, "item_status": "product" },
+        { "id": "rocca-rossa-electrical", "item": "electrical", "quantity": 42, "unit_mass_t": 13, "model": "G90", "grade": "B", "repairs": "5 generator bearing replacements", "passport_pct": 85, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "roussas", "name": "Roussas-Gravières", "country": "FR", "place": "Roussas, Drôme",
+      "lat": 44.44, "lon": 4.81, "model": "V66", "turbines": 6, "mw": 10.5,
+      "commissioned": 2006, "end_of_life": 2031, "alpiq_share": 1, "regime": "FR_2020",
+      "source": "https://www.alpiq.com/energy/assets/wind-power/roussas-gravieres-wind-farm",
+      "lots": [
+        { "id": "roussas-blade", "item": "blade", "quantity": 18, "unit_mass_t": 4.5, "length_m": 32, "grade": "B", "repairs": "Leading-edge protection renewed 2020", "passport_pct": 80, "item_status": "product", "has_geometry_model": true },
+        { "id": "roussas-steel", "item": "steel", "quantity": 18, "unit_mass_t": 40, "length_m": 22, "diameter_m": 3.6, "grade": "B", "repairs": "None recorded", "passport_pct": 80, "item_status": "product" },
+        { "id": "roussas-electrical", "item": "electrical", "quantity": 6, "unit_mass_t": 11, "model": "V66", "grade": "B", "repairs": "1 gearbox exchange (2019)", "passport_pct": 85, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "cers", "name": "Cers", "country": "FR", "place": "Les Corbières, near Carcassonne",
+      "lat": 43.08, "lon": 2.62, "model": "E-70 (assumed)", "turbines": 5, "mw": 11.5,
+      "commissioned": 2009, "end_of_life": 2034, "alpiq_share": 0.15, "regime": "FR_2020",
+      "assumed": "Model, turbine count and commissioning year not published; 5 × 2.3 MW Enercon E-70 from 2009 assumed.",
+      "source": "https://www.alpiq.com/energy/assets/wind-power",
+      "lots": [
+        { "id": "cers-blade", "item": "blade", "quantity": 15, "unit_mass_t": 6, "length_m": 34, "grade": "B", "repairs": "2 trailing-edge repairs", "passport_pct": 75, "item_status": "product" },
+        { "id": "cers-steel", "item": "steel", "quantity": 15, "unit_mass_t": 42, "length_m": 24, "diameter_m": 4.0, "grade": "B", "repairs": "None recorded", "passport_pct": 75, "item_status": "product" },
+        { "id": "cers-electrical", "item": "electrical", "quantity": 5, "unit_mass_t": 14, "model": "E-70", "grade": "B", "repairs": "Converter cards replaced 2021", "passport_pct": 75, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "peuchapatte", "name": "Le Peuchapatte", "country": "CH", "place": "Muriaux, Jura",
+      "lat": 47.24, "lon": 6.98, "model": "E-82", "turbines": 3, "mw": 6.9,
+      "commissioned": 2011, "end_of_life": 2036, "alpiq_share": 1, "regime": "none",
+      "source": "https://www.alpiq.com/energy/assets/wind-power/le-peuchapatte",
+      "lots": [
+        { "id": "peuchapatte-blade", "item": "blade", "quantity": 9, "unit_mass_t": 7, "length_m": 39, "grade": "A", "repairs": "Icing-related inspections only; no repairs", "passport_pct": 95, "item_status": "product", "has_geometry_model": true },
+        { "id": "peuchapatte-steel", "item": "steel", "quantity": 9, "unit_mass_t": 55, "length_m": 27, "diameter_m": 4.3, "grade": "A", "repairs": "None recorded", "passport_pct": 95, "item_status": "product" },
+        { "id": "peuchapatte-electrical", "item": "electrical", "quantity": 3, "unit_mass_t": 15, "model": "E-82", "grade": "A", "repairs": "None recorded", "passport_pct": 95, "item_status": "product" }
+      ]
+    },
+    {
+      "id": "tormoserod", "name": "Tormoseröd", "country": "SE", "place": "Västra Götaland (approx.)",
+      "lat": 58.40, "lon": 11.90, "model": "SG 6.6-155", "turbines": 11, "mw": 72.6,
+      "commissioned": 2023, "end_of_life": 2048, "alpiq_share": 0.3, "regime": "none",
+      "assumed": "Exact site not verified; coordinates approximate.",
+      "source": "https://www.alpiq.com/energy/assets/wind-power/tormoseroed-wind-farm",
+      "lots": [
+        { "id": "tormoserod-blade", "item": "blade", "quantity": 33, "unit_mass_t": 25, "length_m": 76, "grade": "A", "repairs": "None (new farm)", "passport_pct": 100, "item_status": "product", "has_geometry_model": true },
+        { "id": "tormoserod-steel", "item": "steel", "quantity": 55, "unit_mass_t": 70, "length_m": 30, "diameter_m": 5.0, "grade": "A", "repairs": "None", "passport_pct": 100, "item_status": "product" },
+        { "id": "tormoserod-electrical", "item": "electrical", "quantity": 11, "unit_mass_t": 20, "model": "SG 6.6-155", "grade": "A", "repairs": "None", "passport_pct": 100, "item_status": "product" }
+      ]
+    }
+  ],
+
+  "hubs": [
+    { "id": "H-catania", "name": "Catania port hub", "country": "IT", "lat": 37.49, "lon": 15.09, "capacity": { "blade": 120, "steel": 200, "electrical": 80 }, "licensed_for_waste": true },
+    { "id": "H-lanouvelle", "name": "Port-La Nouvelle hub", "country": "FR", "lat": 43.02, "lon": 3.06, "capacity": { "blade": 40, "steel": 60, "electrical": 20 }, "licensed_for_waste": true },
+    { "id": "H-basel", "name": "Basel Rhine-port hub", "country": "CH", "lat": 47.58, "lon": 7.59, "capacity": { "blade": 20, "steel": 30, "electrical": 10 }, "licensed_for_waste": false },
+    { "id": "H-uddevalla", "name": "Uddevalla port hub", "country": "SE", "lat": 58.35, "lon": 11.93, "capacity": { "blade": 40, "steel": 60, "electrical": 20 }, "licensed_for_waste": true }
+  ],
+
+  "receivers": [
+    {
+      "id": "R1", "name": "Open call: Palermo cycle shelters", "kind": "open_call", "country": "IT", "lat": 38.12, "lon": 13.36,
+      "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 2, "quantity_max": 6, "needed_by": 2037, "deadline": 2033,
+      "min_grade": "B", "length_min": 30, "length_max": 46, "needs_whole_blade": true, "needs_geometry_model": true,
+      "avoided_co2_per_t": 0.6, "description": "City architecture competition for covered bike parking built from whole blades.",
+      "precedent": { "label": "Gdańsk Tech open competition (blade bike shed)", "url": "https://wilis.pg.edu.pl/en/redivivus-wind-turbine-blades/architectural-competition" }
+    },
+    {
+      "id": "R2", "name": "Open call: Montpellier blade pavilion", "kind": "open_call", "country": "FR", "lat": 43.61, "lon": 3.88,
+      "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 3, "quantity_max": 8, "needed_by": 2032, "deadline": 2029,
+      "min_grade": "B", "length_min": 28, "length_max": 36, "needs_whole_blade": true, "needs_geometry_model": true,
+      "avoided_co2_per_t": 0.6, "description": "Regional open call for a temporary pavilion; jury asks for blades of 28–36 m.",
+      "precedent": { "label": "Gdańsk Tech open competition (blade bike shed)", "url": "https://wilis.pg.edu.pl/en/redivivus-wind-turbine-blades/architectural-competition" }
+    },
+    {
+      "id": "R3", "name": "Catania–Etna greenway footbridge", "kind": "infrastructure", "country": "IT", "lat": 37.60, "lon": 15.05,
+      "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 2, "quantity_max": 2, "needed_by": 2037,
+      "min_grade": "A", "min_passport_pct": 90, "length_min": 40, "length_max": 46, "needs_whole_blade": true, "approval_months": 18,
+      "avoided_co2_per_t": 1.0, "description": "Cycle bridge in the regional active-travel plan; blades as main girders, needs structural approval.",
+      "precedent": { "label": "Re-Wind BladeBridge, Midleton greenway (Cork)", "url": "https://www.designboom.com/architecture/repurposed-wind-turbine-blades-bladebridge-ireland-02-15-2022/" }
+    },
+    {
+      "id": "R4", "name": "A19 noise-barrier programme (Sicily)", "kind": "infrastructure", "country": "IT", "lat": 37.58, "lon": 14.35,
+      "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 20, "quantity_max": 80, "needed_by": 2036,
+      "min_grade": "C", "avoided_co2_per_t": 0.4,
+      "description": "Road-authority programme for noise barriers along the A19; blade segments as wall panels.",
+      "precedent": { "label": "Blade-Made noise barrier (NL)", "url": "https://materialdistrict.com/article/noise-barrier-from-recycled-wind-turbine-blades-unveiled/" }
+    },
+    {
+      "id": "R5", "name": "A7 Rhône-valley noise barrier", "kind": "infrastructure", "country": "FR", "lat": 44.93, "lon": 4.87,
+      "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 10, "quantity_max": 40, "needed_by": 2033,
+      "min_grade": "C", "avoided_co2_per_t": 0.4,
+      "description": "Motorway noise-barrier renewal; segmented blades accepted.",
+      "precedent": { "label": "Białystok Tech: blades as road noise barriers", "url": "https://scienceinpoland.pl/en/news/news%2C100350%2Cscientists-convert-wind-turbine-blades-road-noise-barriers.html" }
+    },
+    {
+      "id": "R6", "name": "Lyon bus-shelter programme", "kind": "street_furniture", "country": "FR", "lat": 45.76, "lon": 4.84,
+      "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 4, "quantity_max": 12, "needed_by": 2032,
+      "min_grade": "C", "avoided_co2_per_t": 0.5,
+      "description": "Metropolitan programme for shelters and benches; segments accepted.",
+      "precedent": { "label": "Wikado playground, Rotterdam (Superuse)", "url": "https://www.superuse-studios.com/?p=52109" }
+    },
+    {
+      "id": "R7", "name": "Zürich playground programme", "kind": "street_furniture", "country": "CH", "lat": 47.37, "lon": 8.54,
+      "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 2, "quantity_max": 6, "needed_by": 2038,
+      "min_grade": "B", "avoided_co2_per_t": 0.5,
+      "description": "City playground renewal; blade segments as play structures.",
+      "precedent": { "label": "Wikado playground, Rotterdam (Superuse)", "url": "https://www.superuse-studios.com/?p=52109" }
+    },
+    {
+      "id": "R8", "name": "Composite recycler (Navarra)", "kind": "recycler", "country": "ES", "lat": 42.60, "lon": -1.60,
+      "item": "blade", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 2000, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 0.2, "description": "Pseudo material-recycling plant; takes any blade, whole or cut."
+    },
+    {
+      "id": "R9", "name": "Cement co-processing (Lombardy)", "kind": "coprocessing", "country": "IT", "lat": 45.60, "lon": 9.90,
+      "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 0.11, "description": "Pseudo cement kiln; blades as fuel and raw material (0.11 t CO2 saved per t, WindEurope)."
+    },
+    {
+      "id": "R10", "name": "Thermal treatment (Basel)", "kind": "coprocessing", "country": "CH", "lat": 47.55, "lon": 7.62,
+      "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 500, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 0.08, "description": "Pseudo Swiss thermal treatment, ash to cement (VVEA Art. 10 route)."
+    },
+    {
+      "id": "R11", "name": "Puglia wind farm (Gamesa fleet)", "kind": "wind_farm", "country": "IT", "lat": 41.25, "lon": 15.55,
+      "item": "electrical", "tier": 1, "stage": "selected", "quantity_min": 2, "quantity_max": 25, "needed_by": 2036,
+      "min_grade": "B", "models": ["ECO 80", "G8X", "G90"], "avoided_co2_per_t": 3.0,
+      "description": "Operating farm keeping its fleet running; buys generators and converters as spares."
+    },
+    {
+      "id": "R12", "name": "Castilla y León wind farm (Vestas/Enercon)", "kind": "wind_farm", "country": "ES", "lat": 41.65, "lon": -4.70,
+      "item": "electrical", "tier": 1, "stage": "call_open", "quantity_min": 1, "quantity_max": 8, "needed_by": 2035,
+      "min_grade": "B", "models": ["V66", "E-70", "E-82"], "avoided_co2_per_t": 3.0,
+      "description": "Life-extension project looking for compatible drivetrain spares."
+    },
+    {
+      "id": "R13", "name": "Electrical & metals recycler (Milan)", "kind": "recycler", "country": "IT", "lat": 45.46, "lon": 9.19,
+      "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 1000, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo recycler for copper, electrical steel and electronics."
+    },
+    {
+      "id": "R14", "name": "Genoa port logistics hall", "kind": "construction", "country": "IT", "lat": 44.41, "lon": 8.93,
+      "item": "steel", "tier": 1, "stage": "announced", "quantity_min": 6, "quantity_max": 24, "needed_by": 2037,
+      "min_grade": "B", "diameter_min": 3.5, "diameter_max": 4.5, "length_min": 20, "approval_months": 12,
+      "avoided_co2_per_t": 1.5, "description": "Planned hall using reclaimed tower sections as columns; needs structural approval.",
+      "precedent": { "label": "EPFL stock-constrained design (reclaimed steel)", "url": "https://infoscience.epfl.ch/entities/publication/392a9e8d-4bad-44b4-8f1c-1a37b216096c/thesisdetails" }
+    },
+    {
+      "id": "R15", "name": "Steel mill (Brescia)", "kind": "factory", "country": "IT", "lat": 45.54, "lon": 10.21,
+      "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo electric-arc furnace taking tower steel as scrap."
+    },
+    {
+      "id": "R16", "name": "Steel mill (Fos-sur-Mer)", "kind": "factory", "country": "FR", "lat": 43.44, "lon": 4.94,
+      "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
+      "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo steel mill taking tower steel as scrap."
+    }
+  ],
+
+  "params": {
+    "road_factor": 1.3,
+    "planning_window_years": 4,
+    "storage_limit_years_waste": 3,
+    "notification_months": 3,
+    "ef_kg_per_km": { "standard": 0.9, "oversize": 1.6 },
+    "rate_eur_per_km": { "standard": 1.8, "oversize": 6.0 },
+    "truck_payload_t": 24,
+    "blades_per_truck_segmented": 3,
+    "cutting_eur_per_blade": 1500,
+    "permit_eur_per_country": 300,
+    "certainty": { "announced": 0.3, "call_open": 0.5, "selected": 0.8, "contracted": 1.0 },
+    "fr_rotor_quota": 0.35,
+    "embodied_mj_per_kg": { "blade": 70, "steel": 25, "electrical": 60 },
+    "embodied_retention": {
+      "blade": [0.9, 0.7, 0.15, 0.03],
+      "steel": [0.9, 0.8, 0.6, 0],
+      "electrical": [0.9, 0.7, 0.35, 0]
+    },
+    "transport_mj_per_km": { "standard": 13, "oversize": 22 },
+    "assumptions_note": "Pseudo data. Emission factors, truck rates, cutting and permit costs, avoided CO2, embodied-energy values and retention shares, and certainty values are placeholders, not sourced figures."
+  }
+}

@@ -56,8 +56,8 @@ export const WEEKS: Week[] = [
   {
     n: 4,
     title: 'Second life',
-    description: 'For end-of-life turbines, decide which parts to reuse, sell or recycle.',
-    ready: false,
+    description: 'Match end-of-life parts with second-life uses on a map, years before dismantling.',
+    ready: true,
     seniorStyle: 'strict',
     features: { ...none, thinkFirst: true, strictSenior: true, traps: true, scheduling: true, secondLife: true },
   },
