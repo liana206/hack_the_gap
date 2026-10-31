@@ -6,6 +6,7 @@ import DecisionPanel from './components/DecisionPanel'
 import Reveal from './components/Reveal'
 import SeniorChat from './components/SeniorChat'
 import WeekPicker from './components/WeekPicker'
+import { gradeReasoning } from './senior'
 import type { Answer, LogEntry, Scenario, ScenarioIndexEntry } from './types'
 import { WEEKS } from './weeks'
 
@@ -65,12 +66,14 @@ export default function App() {
   }, [weekLog])
   const weekCorrect = cases.filter((c) => firstTry[c.id]?.correct).length
   const weekPlayed = cases.filter((c) => firstTry[c.id]).length
+  const details = cases.flatMap((c) => firstTry[c.id]?.detail ?? [])
+  const avgDetail = details.length ? (details.reduce((a, b) => a + b, 0) / details.length).toFixed(1) : null
 
   function decide(decision: Answer, reason: string) {
     if (!scenario) return
     // Score from code against the real outcome, never from the LLM.
     const correct = decision === scenario.truth.answer
-    setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, time: new Date().toISOString() }])
+    setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, detail: reason ? gradeReasoning(reason).points : undefined, time: new Date().toISOString() }])
     setPlayed({ decision, reason })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -102,6 +105,7 @@ export default function App() {
             <div className="text-sm text-slate-500">
               Week {weekN}: correct on first try ({weekPlayed} played)
             </div>
+            {avgDetail && <div className="mt-1 text-sm text-slate-500">Reasoning detail: {avgDetail}/7 on average</div>}
             <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
               <span>{log.length} decisions logged</span>
               {log.length > 0 && (

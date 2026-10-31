@@ -56,7 +56,27 @@ export function summarizeTruth(s: Scenario): string {
     `Correct answer: ${label(s.truth.answer)}.`,
     `What happened: ${s.truth.outcome}`,
     `Why: ${s.truth.explanation}`,
+    `Illustrative total cost of each call in this case: ${ANSWERS.map((a) => `${a.title} ${s.truth.cost_if[a.id]} EUR`).join(', ')}.`,
   ].join('\n')
+}
+
+// Detail grade: how much evidence the written reason covers. Computed in code, never by the LLM.
+// It measures coverage, not correctness: Sandra checks whether the claims are actually right.
+const DETAIL_CHECKS: { label: string; re: RegExp }[] = [
+  { label: 'temperature gap vs expected', re: /\bgap\b|expected|residual|deviat|differ|(above|below) the (line|curve)/i },
+  { label: 'trend over time', re: /trend|\b(rise|rises|rising|rose|risen)\b|increas|grow|\bgrew\b|drift|climb|flat|stable|steady|worse|per day/i },
+  { label: 'power, wind or weather', re: /power|load|output|produc|wind|weather|ambient|outside|heat ?wave/i },
+  { label: 'alarms', re: /alarm|warning|alert/i },
+  { label: 'age or remaining life', re: /\bage\b|\bold\b|young|\blife\b|warranty|repower/i },
+  { label: 'costs', re: /cost|\beur\b|€|euro|price|downtime|revenue|resale|cheap|expensive|money/i },
+  { label: 'a number from the data', re: /\d/ },
+]
+
+export function gradeReasoning(reason: string) {
+  const checks = DETAIL_CHECKS.map((c) => ({ label: c.label, hit: c.re.test(reason) }))
+  const points = checks.filter((c) => c.hit).length
+  const grade = points >= 6 ? 'A' : points >= 4 ? 'B' : points >= 2 ? 'C' : points === 1 ? 'D' : 'F'
+  return { grade, points, max: checks.length, checks }
 }
 
 const STYLE: Record<Week['seniorStyle'], string> = {
@@ -74,17 +94,25 @@ export function buildSystemPrompt(
 ): string {
   // After the reveal there is no answer left to protect, so the strict senior may correct openly.
   const style =
-    revealed && week.seniorStyle === 'strict' ? 'You are demanding. Ask for evidence and point out gaps in reasoning.' : STYLE[week.seniorStyle]
-  const firstReply =
-    revealed && reason
-      ? 'First reply: correct the written reasoning. (1) was the call right, (2) quote what in their reasoning was right or wrong, checked against the case facts, (3) the signal they missed, (4) one rule of thumb. If the call was right but the reasoning is weak, say so plainly.'
-      : 'First reply: (1) was the call right, (2) the ONE signal in the data that mattered most, (3) one rule of thumb.'
+    revealed && week.seniorStyle === 'strict'
+      ? 'You are direct but kind, like a mentor who wants the junior to improve. Critique the reasoning, never the person. No sarcasm, scolding or lecturing.'
+      : STYLE[week.seniorStyle]
+  // The master solution teaches how an expert reads this case, whether or not the call was right.
+  const masterSolution =
+    'walk through the master solution step by step: what the temperature gap and its trend show, whether power, weather and alarms change that, then how age, remaining life and costs lead to the right call. Use the numbers from the case facts'
+  const firstReply = !revealed
+    ? 'First reply: (1) was the call right, (2) the ONE signal in the data that mattered most, (3) one rule of thumb.'
+    : reason
+      ? `First reply, in short paragraphs: (1) say if the call was right and state the detail grade below, explaining that it shows how much evidence they covered, (2) quote the junior's reasoning and say what holds up and what is missing, as something to add rather than a failure, (3) ${masterSolution}, (4) one rule of thumb.`
+      : `First reply, in short paragraphs: (1) say if the call was right, (2) ${masterSolution}, (3) one rule of thumb.`
+  const detail = gradeReasoning(reason)
   return [
     'You are Sandra, a senior wind turbine maintenance engineer coaching a junior asset manager in a training simulator.',
     style,
-    'Rules: plain language, no markdown headings, max 120 words.',
+    `Rules: plain language, no markdown or asterisks, first reply max ${revealed ? 250 : 120} words, follow-up replies max 120 words.`,
     firstReply,
-    'Follow-up replies: answer the question briefly, refer to the facts below, do not invent numbers.',
+    'Follow-up replies: answer the question briefly, refer to the facts below.',
+    'In every reply, use only numbers and facts given below. Do not invent causes, limits or costs. For what each call would cost, use the illustrative totals.',
     'The "expected" temperature comes from a normal-behaviour model: 32 + 0.011 * power_kw + 0.85 * outside temperature + 0.25 * age_years.',
     '',
     'CASE FACTS (computed from the data the junior saw):',
@@ -93,7 +121,9 @@ export function buildSystemPrompt(
     revealed ? `TRUTH (revealed):\n${summarizeTruth(s)}` : 'The outcome is NOT known yet. Do not guess it.',
     '',
     `JUNIOR'S DECISION: ${label(decision)}`,
-    reason ? `JUNIOR'S REASON: ${reason}` : 'The junior gave no written reason, so explain the case; do not comment on their reasoning.',
+    reason
+      ? `JUNIOR'S REASON: ${reason}\nDETAIL GRADE (computed by the app, never change it): ${detail.grade}, ${detail.points} of ${detail.max}. Not covered: ${detail.checks.filter((c) => !c.hit).map((c) => c.label).join(', ') || 'nothing'}.`
+      : 'The junior gave no written reason, so explain the case; do not comment on their reasoning.',
   ].join('\n')
 }
 
@@ -102,6 +132,7 @@ export function offlineFeedback(s: Scenario, decision: Answer, reason: string, w
   const right = decision === s.truth.answer
   return (
     (right ? 'Good call. ' : `Not quite: the right call was "${label(s.truth.answer)}". `) +
+    (reason ? `Detail grade: ${gradeReasoning(reason).grade}. ` : '') +
     s.truth.explanation +
     ' Rule of thumb: judge the gap between measured and expected temperature, not the raw temperature.' +
     `\n\n(Offline mode: ${why}, this is a built-in reply.${reason ? ' Your written reasoning was not checked.' : ''})`

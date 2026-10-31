@@ -73,7 +73,7 @@ export default function SeniorChat({ week, s, decision, reason }: Props) {
         <div>
           <div className="font-semibold text-navy">Sandra · Senior maintenance engineer</div>
           <div className="text-xs text-slate-500">
-            AI coach ({week.seniorStyle} style){offline && ' · offline mode'}. She explains; she does not grade you. Your score comes from the real outcome.
+            AI coach ({week.seniorStyle} style){offline && ' · offline mode'}. Your score comes from the real outcome and your detail grade from a fixed checklist, not from her opinion.
           </div>
         </div>
       </div>
