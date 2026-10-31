@@ -117,7 +117,7 @@ export default function App() {
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">Alpiq · Hack the Gap</div>
-            <h1 className="text-xl font-semibold">Turbine Judgement Gym</h1>
+            <h1 className="text-xl font-semibold">From Onboarding To Ownership</h1>
           </div>
           <WeekPicker week={weekN} onChange={setWeekN} />
         </div>
@@ -139,7 +139,7 @@ export default function App() {
               <span className="text-lg text-slate-400">/{cases.length || '–'}</span>
             </div>
             <div className="text-sm text-slate-500">
-              Week {weekN}: correct on first try ({weekPlayed} played)
+              Stage {weekN}: correct on first try ({weekPlayed} played)
             </div>
             {avgDetail && <div className="mt-1 text-sm text-slate-500">Reasoning detail: {avgDetail}/7 on average</div>}
             {traps.length > 0 && <div className="mt-1 text-sm text-slate-500">Wrong AI caught: {trapsCaught}/{traps.length} traps met</div>}
@@ -192,7 +192,7 @@ function ComingSoon({ n }: { n: number }) {
   const flags = Object.entries(w.features).filter(([, on]) => on).map(([k]) => k)
   return (
     <div className="card p-10">
-      <div className="card-title">Week {w.n} · coming soon</div>
+      <div className="card-title">Stage {w.n} · coming soon</div>
       <h2 className="mt-1 text-2xl font-semibold text-navy">{w.title}</h2>
       <p className="mt-2 max-w-xl text-slate-600">{w.description}</p>
       <div className="mt-5 flex flex-wrap gap-2">

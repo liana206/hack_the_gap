@@ -262,7 +262,7 @@ function Overview({ data, year, signedCount }: { data: Dataset; year: number; si
         <Step n={4}>Propose the plan; a senior signs it.</Step>
       </ol>
       <div className="rounded-lg bg-sky-50 px-3 py-2 text-[11px] text-sky-800">
-        Monte Mele holds the turbines from the Week 1–2 cases. T01, diagnosed for dismantling there, is the first to retire.
+        Monte Mele holds the turbines from the Stage 1–2 cases. T01, diagnosed for dismantling there, is the first to retire.
       </div>
       <div className="rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-800">
         Pseudo data: farm sites and specs are public Alpiq data; turbines, components, hubs, receivers, prices and energy/CO₂ factors are invented placeholders.

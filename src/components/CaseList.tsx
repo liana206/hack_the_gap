@@ -37,7 +37,7 @@ export default function CaseList({ cases, selected, lastResult, onSelect }: Prop
                 <span className={`block truncate text-sm font-medium ${active ? 'text-navy' : 'text-slate-700'}`}>
                   {c.title}
                 </span>
-                <span className="text-xs text-slate-400">Week {c.week}</span>
+                <span className="text-xs text-slate-400">Stage {c.week}</span>
               </span>
             </button>
           </li>

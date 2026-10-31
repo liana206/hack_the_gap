@@ -62,7 +62,7 @@ export default function DecisionPanel({ askReason, onSubmit }: Props) {
               onClick={() => choice && onSubmit(choice, reason.trim())}
               className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Lock in decision & reveal
+              Lock in decision
             </button>
           </div>
         </>

@@ -15,7 +15,7 @@ export default function WeekPicker({ week, onChange }: { week: number; onChange:
             }`}
           >
             <div className="text-[11px] font-semibold uppercase tracking-wider opacity-70">
-              Week {w.n} {!w.ready && '· soon'}
+              Stage {w.n} {!w.ready && '· soon'}
             </div>
             <div className="text-sm font-medium">{w.title}</div>
           </button>
