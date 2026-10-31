@@ -8,7 +8,7 @@ public/scenarios/index.json        # [{ "id", "week", "title" }, ...]  (list ord
 public/scenarios/<id>.json         # one file per case, format below
 ```
 
-- `make_mock_scenarios.py` – 4 synthetic Week 1 cases (no packages, deterministic). Run from repo root:
+- `make_mock_scenarios.py` – 12 synthetic cases, 6 each for Weeks 1 and 2 (no packages, deterministic). Run from repo root:
   `python3 pipeline/make_mock_scenarios.py`
 
 ## Scenario format
@@ -16,7 +16,7 @@ public/scenarios/<id>.json         # one file per case, format below
 ```jsonc
 {
   "id": "w1-gearbox",               // = file name without .json
-  "week": 1,                         // case shows up from this week on
+  "week": 1,                         // case shows up in this week only
   "title": "T03 - gearbox running warm",
   "source": "synthetic",             // always "synthetic" (shown as a label in the UI)
   "turbine": { "name": "T03", "farm": "Training Farm (synthetic)", "age_years": 9,
@@ -72,5 +72,9 @@ All cases are synthetic, designed so each one teaches one lesson. To add one:
    `python3 pipeline/make_mock_scenarios.py`. It rewrites all files and `index.json`.
 5. Check the case in the app: is the lesson visible in the history, but not obvious?
 
-Ideas for later weeks: a wrong-AI trap case (week 2), a case where the timing of maintenance
+Week 2 cases also have `"challenge": { "stance": "ok", "text": "...", "points": ["..."] }`: what Sandra argues before the reveal,
+and the separate arguments the junior must answer in the debate if they go against her.
+It is scripted, so no LLM needs the truth. If `stance` differs from `truth.answer`, the case is a wrong-AI trap.
+
+Ideas for later weeks: a case where the timing of maintenance
 matters (week 3, add price data), an end-of-life case with part resale values (week 4).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate synthetic Week 1 scenarios into public/scenarios/.
+"""Generate synthetic Week 1 and Week 2 scenarios into public/scenarios/.
 
 Pure Python, no packages. Deterministic (fixed seeds), so re-running gives the same files.
 Format: see pipeline/README.md. Run from the repo root:  python3 pipeline/make_mock_scenarios.py
@@ -378,9 +378,238 @@ def old_generator():
     }
 
 
+# ---------------------------------------------------------------- week 2: harder cases with a challenge
+# challenge = what Sandra argues before the reveal, with its separate points for the debate.
+# It is scripted, so no LLM needs the truth.
+# When its stance differs from truth.answer, it is a wrong-AI trap.
+
+def gap_last_3_days(series):
+    h = series["history_len"]
+    gaps = [m - e for m, e in zip(series["component_temp"][h - 72:h], series["component_expected"][h - 72:h])]
+    return sum(gaps) / len(gaps)
+
+
+def slow_drift():
+    rng = random.Random(7)
+    start = datetime(2025, 3, 10)
+    t = turbine("T05", 11)
+    c = costs(t, 25000, 90000, 150000)
+    series = build(rng, start, t["age_years"], ambient_base=9,
+                   fault_gap=creep(3, 0.2, 0.002, 2.0), stop_at=HISTORY_LEN + 13 * 24)
+    return {
+        "id": "w2-slow-drift", "week": 2, "title": "T05 - weekly data review", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. It has no active alarms and is on this week's routine data review.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "ok",
+            "points": ["A gap of this size is normal scatter", "No alarm fired, so nothing is wrong",
+                       f"Saving the {c['maintenance_eur']:,} EUR crew visit is worth more than the risk"],
+            "text": f"The gap is only about {gap_last_3_days(series):.0f} °C over the last 3 days and there is "
+                    f"not a single alarm. That is normal scatter for a gearbox this age. I would keep it running "
+                    f"and save the {c['maintenance_eur']:,} EUR.",
+        },
+        "truth": {
+            "answer": "maintenance",
+            "outcome": "13 days later the bearing seized. T05 tripped and needed a new gearbox (6 weeks offline).",
+            "explanation": "The gap was small, but it grew steadily for almost three weeks. Normal scatter moves "
+                           "up and down around zero; a fault only moves one way. No alarm fired because alarms "
+                           "watch raw temperature, not the gap.",
+            "cost_if": cost_if(t, c, fault=True, failure_repair_eur=300000, failure_offline_days=42),
+        },
+    }
+
+
+def heatwave_fault():
+    rng = random.Random(8)
+    start = datetime(2025, 8, 4)
+    t = turbine("T12", 7)
+    c = costs(t, 25000, 90000, 150000)
+
+    def bump(i):
+        d = i / 24
+        if 21 <= d < 25:
+            return 8 * (1 - (d - 21) / 4)
+        return 8 * min(1.0, (d - 12) / 2) if 12 <= d < 21 else 0.0
+
+    series = build(rng, start, t["age_years"], ambient_base=23, ambient_bump=bump, wind_mean=9.0,
+                   fault_gap=creep(9, 0.35, 0.004, 2.0), stop_at=HISTORY_LEN + 10 * 24)
+    return {
+        "id": "w2-heatwave-fault", "week": 2, "title": "T12 - heatwave warning", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"A heatwave hit the region this week. {age_label(t)}, raised temperature warnings and the "
+                    "site manager asks if a crew should go out.",
+        "alarms": high_temp_alarms(start, series, 82, "WARNING: gearbox bearing temperature > 82 °C"),
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "maintenance",
+            "points": ["The gap remains even though the expected curve already includes the weather",
+                       "The gap started before the heatwave"],
+            "text": "The heatwave explains the high temperature, but the expected curve already includes the "
+                    f"weather. The gap is still about {gap_last_3_days(series):.0f} °C and it started before the "
+                    "heat did. I would send a crew.",
+        },
+        "truth": {
+            "answer": "maintenance",
+            "outcome": "10 days later the bearing failed, after the heatwave had already ended. The gearbox had "
+                       "to be replaced (6 weeks offline).",
+            "explanation": "The weather was hiding a real fault. The expected curve already accounts for outside "
+                           "temperature, so a gap that keeps growing on top of it is the bearing, not the heat.",
+            "cost_if": cost_if(t, c, fault=True, failure_repair_eur=300000, failure_offline_days=42),
+        },
+    }
+
+
+def noisy_alarms():
+    rng = random.Random(9)
+    start = datetime(2025, 6, 2)
+    t = turbine("T04", 12)
+    c = costs(t, 25000, 90000, 150000)
+    series = build(rng, start, t["age_years"], ambient_base=19, wind_mean=12.0)
+    alarms = high_temp_alarms(start, series, 76, "WARNING: gearbox bearing temperature > 76 °C")
+    return {
+        "id": "w2-noisy-alarms", "week": 2, "title": "T04 - repeated warnings", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. It has raised repeated temperature warnings over the last three weeks. "
+                    "It has been a windy period. The site manager asks if a crew should go out.",
+        "alarms": alarms,
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "maintenance",
+            "points": ["Repeated warnings show a worrying pattern on a gearbox this age",
+                       "A crew visit is cheap insurance"],
+            "text": f"{len(alarms)} days with temperature warnings in three weeks, on a {t['age_years']}-year-old "
+                    f"gearbox. I do not like that pattern. A crew visit is only {c['maintenance_eur']:,} EUR, which "
+                    "is cheap insurance. I would send one.",
+        },
+        "truth": {
+            "answer": "ok",
+            "outcome": "T04 kept running normally. No fault was found at the next scheduled service.",
+            "explanation": "The warnings came with high load on windy days. Measured temperature stayed on the "
+                           "expected curve, so the gap stayed near zero. Many alarms are not evidence of a fault "
+                           "when the gap does not move.",
+            "cost_if": cost_if(t, c, fault=False),
+        },
+    }
+
+
+def sensor_step():
+    rng = random.Random(10)
+    start = datetime(2025, 9, 15)
+    t = turbine("T10", 10, last_service_months=0)
+    c = costs(t, 25000, 90000, 150000)
+    service_day = 9
+    series = build(rng, start, t["age_years"], ambient_base=14,
+                   fault_gap=lambda i: 3.5 if i >= service_day * 24 else 0.0)
+    return {
+        "id": "w2-sensor-step", "week": 2, "title": "T10 - after the service visit", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. Its gearbox had a scheduled service on {ts(start, service_day * 24)[:10]}, "
+                    "which included a new temperature sensor. The data team flagged the reading afterwards.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "ok",
+            "points": ["The gap jumped on the day the new sensor was fitted", "A flat gap is not what wear looks like"],
+            "text": f"The gap jumped by about {gap_last_3_days(series):.0f} °C on the day of the service and has "
+                    "stayed flat since. Wear grows over time; a step that stays flat points to the new sensor. "
+                    "I would leave it running and have the sensor checked at the next visit.",
+        },
+        "truth": {
+            "answer": "ok",
+            "outcome": "T10 kept running normally. The next visit found that the new sensor reads about 3.5 °C high.",
+            "explanation": "A developing fault makes the gap grow. Here it jumped once, on the service date, then "
+                           "stayed flat. Look at the shape of the gap and at what changed on that day, not only "
+                           "at its size.",
+            "cost_if": cost_if(t, c, fault=False),
+        },
+    }
+
+
+def old_worth_fixing():
+    rng = random.Random(11)
+    start = datetime(2025, 11, 3)
+    t = turbine("T06", 18, repowering_in_years=2)
+    c = costs(t, 60000, 60000, 40000)
+    series = build(rng, start, t["age_years"], ambient_base=7,
+                   fault_gap=creep(8, 0.5, 0.01, 2.0), stop_at=HISTORY_LEN + 10 * 24)
+    return {
+        "id": "w2-old-worth-fixing", "week": 2, "title": "T06 - generator check before repowering", "source": "synthetic",
+        "turbine": t, "component": "Generator bearing (drive end)",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. The control room asks you to check the generator bearing. "
+                    "Bearing replacement quote: 60k EUR.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "dismantle",
+            "points": ["This turbine is too old to be worth the repair", "Repowering makes the repair pointless",
+                       "Selling the parts makes dismantling attractive"],
+            "text": f"T06 is {t['age_years']} years old and the site gets repowered anyway. Why put "
+                    f"{c['maintenance_eur']:,} EUR into a machine that is going away? I would dismantle it now and "
+                    f"sell the parts for about {c['resale_parts_eur']:,} EUR.",
+        },
+        "truth": {
+            "answer": "maintenance",
+            "outcome": "Left alone, the bearing failed 10 days later. A planned bearing swap would have kept T06 "
+                       "earning until repowering.",
+            "explanation": "The fault was real, but age alone does not decide. Two more years at about "
+                           f"{t['annual_margin_eur']:,.0f} EUR per year earn far more than the 60k repair. "
+                           "Always compare the repair with the money the turbine can still earn.",
+            "cost_if": cost_if(t, c, fault=True, failure_repair_eur=150000, failure_offline_days=20),
+        },
+    }
+
+
+def end_of_extension():
+    rng = random.Random(12)
+    start = datetime(2025, 1, 13)
+    t = turbine("T08", 24)
+    c = costs(t, 250000, 50000, 30000)
+    series = build(rng, start, t["age_years"], ambient_base=5,
+                   fault_gap=creep(5, 0.4, 0.006, 2.2), stop_at=HISTORY_LEN + 11 * 24)
+    return {
+        "id": "w2-end-of-extension", "week": 2, "title": "T08 - generator check", "source": "synthetic",
+        "turbine": t, "component": "Generator bearing (drive end)",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. Its life extension ends in about a year, with no plan to renew it. The "
+                    "control room asks you to check the generator bearing. Generator overhaul quote: 250k EUR.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "dismantle",
+            "points": ["The overhaul costs more than the turbine can still earn",
+                       "Dismantling before the failure keeps the parts sellable"],
+            "text": f"The fault looks real, but one more year earns about {t['annual_margin_eur']:,.0f} EUR and the "
+                    f"overhaul costs {c['maintenance_eur']:,} EUR. I would dismantle it while the parts can still "
+                    "be sold.",
+        },
+        "truth": {
+            "answer": "dismantle",
+            "outcome": "The bearing failed 11 days later. T08 was dismantled, and the damaged generator could no "
+                       "longer be sold.",
+            "explanation": "The gap kept growing, so the fault was real. But a 250k overhaul cannot be earned back "
+                           "in about one remaining year, and dismantling before the failure keeps the parts sellable.",
+            "cost_if": cost_if(t, c, fault=True, maint_days=14, failure_ends_life=True, damaged_resale_eur=5000),
+        },
+    }
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    scenarios = [healthy(), gearbox(), heatwave(), old_healthy(), warranty_generator(), old_generator()]
+    scenarios = [healthy(), gearbox(), heatwave(), old_healthy(), warranty_generator(), old_generator(),
+                 slow_drift(), heatwave_fault(), noisy_alarms(), sensor_step(), old_worth_fixing(), end_of_extension()]
     for s in scenarios:
         ci = s["truth"]["cost_if"]
         cheapest = min(ci, key=ci.get)
@@ -392,8 +621,9 @@ def main():
     (OUT / "index.json").write_text(json.dumps(index, indent=2), encoding="utf-8")
     for s in scenarios:
         t, ci = s["turbine"], s["truth"]["cost_if"]
+        trap = "TRAP " if s.get("challenge", {}).get("stance", s["truth"]["answer"]) != s["truth"]["answer"] else ""
         print(f"{s['id']:24s} {t['name']} age {t['age_years']:>2}  life left {t['remaining_life_years']:>4}y  "
-              f"answer {s['truth']['answer']:11s} cost_if {ci}")
+              f"{trap}answer {s['truth']['answer']:11s} cost_if {ci}")
     print(f"wrote {len(scenarios)} scenarios to {OUT}")
 
 

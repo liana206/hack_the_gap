@@ -1,12 +1,22 @@
-import { ANSWERS, type Answer, type Scenario } from '../types'
+import { ANSWERS, type Answer, type Debate, type Scenario } from '../types'
 import { gradeReasoning } from '../senior'
 import { eur } from './CaseFacts'
 
-export default function Reveal({ s, decision, reason }: { s: Scenario; decision: Answer; reason: string }) {
+interface Props {
+  s: Scenario
+  decision: Answer
+  reason: string
+  firstDecision?: Answer
+  debate?: Debate
+}
+
+export default function Reveal({ s, decision, reason, firstDecision, debate }: Props) {
   const correct = decision === s.truth.answer
   const best = s.truth.answer
   const title = (a: Answer) => ANSWERS.find((x) => x.id === a)!.title
   const detail = gradeReasoning(reason)
+  const stance = firstDecision && s.challenge?.stance
+  const trap = stance && stance !== best
 
   return (
     <div className="card overflow-hidden">
@@ -18,6 +28,32 @@ export default function Reveal({ s, decision, reason }: { s: Scenario; decision:
           You chose <b>{title(decision)}</b>. The right answer was <b>{title(best)}</b>.
         </div>
       </div>
+
+      {stance && (
+        <div className={`border-b px-6 py-4 text-sm ${trap ? 'border-amber-200 bg-amber-50' : 'border-slate-100 bg-slate-50'}`}>
+          <div className="font-semibold text-slate-800">
+            {trap
+              ? `This was a trap: Sandra argued "${title(stance)}" on purpose, and she was wrong.`
+              : `No trap this time: Sandra argued "${title(stance)}", and she was right.`}
+          </div>
+          <div className="mt-0.5 text-slate-600">
+            {firstDecision === decision ? `You stayed with your first call, ${title(firstDecision)}.` : `You changed from ${title(firstDecision)} to ${title(decision)}.`}{' '}
+            {correct ? (trap ? 'You caught the wrong AI.' : 'You judged her advice correctly.') : trap ? 'The wrong AI got through.' : 'You rejected good advice.'}
+          </div>
+          <p className="mt-2 italic text-slate-500">Sandra: “{s.challenge!.text}”</p>
+          {debate && debate.rounds > 0 && (
+            <p className="mt-2 text-slate-600">
+              Debate: {debate.rounds} {debate.rounds === 1 ? 'reply' : 'replies'}.{' '}
+              {!debate.checked
+                ? 'Gemini was unavailable, so your replies were not checked.'
+                : debate.open.length
+                  ? `Still unanswered: ${debate.open.join('; ')}.`
+                  : 'No argument of hers was left open.'}{' '}
+              This is feedback and does not change your score.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-6 p-6 lg:grid-cols-2">
         <div className="space-y-4">

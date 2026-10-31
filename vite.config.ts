@@ -5,12 +5,14 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 // Tried in this order after GEMINI_MODEL when a model is busy or unavailable.
 const FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3-flash-preview', 'gemini-3.5-flash']
+// Debate turns (json) need reliable verdicts: in our test only this model got all of them right, but it takes ~9 s.
+const JSON_MODEL = 'gemini-3-flash-preview'
 const TRY_NEXT = new Set([404, 429, 500, 503, 504])
 const ATTEMPT_MS = 15000
 const TOTAL_MS = 40000
 
 // Tiny proxy: browser POSTs {system, messages} to /api/gemini, we add the key server-side.
-// messages: [{role: "user" | "assistant", content: string}]
+// messages: [{role: "user" | "assistant", content: string}]; json: true asks for a JSON reply
 function geminiProxy(env: Record<string, string>): Plugin {
   const key = env.GEMINI_API_KEY
   const model = env.GEMINI_MODEL || 'gemini-3.8-flash'
@@ -27,17 +29,18 @@ function geminiProxy(env: Record<string, string>): Plugin {
     let raw = ''
     for await (const chunk of req) raw += chunk
     try {
-      const { system, messages } = JSON.parse(raw)
+      const { system, messages, json } = JSON.parse(raw)
       const body = JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: messages.map((m: { role: string; content: string }) => ({
           role: m.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: m.content }],
         })),
+        generationConfig: json ? { responseMimeType: 'application/json' } : undefined,
       })
       const deadline = Date.now() + TOTAL_MS // never let slow models hang the demo
       let lastError = 'no model answered'
-      for (const m of new Set([model, ...FALLBACK_MODELS])) {
+      for (const m of new Set(json ? [JSON_MODEL, 'gemini-3.5-flash', model, ...FALLBACK_MODELS] : [model, ...FALLBACK_MODELS])) {
         const left = deadline - Date.now()
         if (left <= 0) break
         try {

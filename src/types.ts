@@ -45,6 +45,7 @@ export interface Scenario {
     wind_ms: number[]
     ambient_c: number[]
   }
+  challenge?: { stance: Answer; text: string; points: string[] } // Sandra's scripted argument before the reveal; a trap if stance is wrong
   truth: {
     answer: Answer
     outcome: string
@@ -58,6 +59,14 @@ export interface ChatMessage {
   content: string
 }
 
+// What happened in the debate before the reveal. Feedback only: it never changes the score.
+export interface Debate {
+  said: string // everything the junior replied
+  rounds: number
+  open: string[] // Sandra's arguments still unanswered when the junior locked in
+  checked: boolean // false if Gemini was unavailable, so the replies were not checked
+}
+
 // One played case, stored in localStorage
 export interface LogEntry {
   caseId: string
@@ -66,6 +75,9 @@ export interface LogEntry {
   reason: string
   correct: boolean
   detail?: number // detail grade points for the written reason, if there was one
+  firstDecision?: Answer // the call before Sandra's challenge, if there was one
+  debate?: Debate
+  trap?: boolean // Sandra's challenge was wrong on purpose
   time: string // ISO timestamp
 }
 

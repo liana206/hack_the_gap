@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import CaseFacts from './components/CaseFacts'
+import ChallengePanel from './components/ChallengePanel'
 import CaseList from './components/CaseList'
 import { ConditionsChart, GapChart, TemperatureChart } from './components/Charts'
 import DecisionPanel from './components/DecisionPanel'
@@ -8,7 +9,7 @@ import SeniorChat from './components/SeniorChat'
 import WeekPicker from './components/WeekPicker'
 import ReuseApp from './reuse/ReuseApp'
 import { gradeReasoning } from './senior'
-import type { Answer, LogEntry, Scenario, ScenarioIndexEntry } from './types'
+import type { Answer, Debate, LogEntry, Scenario, ScenarioIndexEntry } from './types'
 import { WEEKS } from './weeks'
 
 const LOG_KEY = 'turbine-gym-log-v1'
@@ -28,11 +29,12 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [log, setLog] = useState<LogEntry[]>(loadLog)
-  const [played, setPlayed] = useState<{ decision: Answer; reason: string } | null>(null)
+  const [played, setPlayed] = useState<{ decision: Answer; reason: string; firstDecision?: Answer; debate?: Debate } | null>(null)
+  const [pending, setPending] = useState<{ decision: Answer; reason: string } | null>(null) // waiting for the final call
   const [error, setError] = useState<string | null>(null)
 
   const week = WEEKS.find((w) => w.n === weekN)!
-  const cases = index.filter((c) => c.week <= weekN)
+  const cases = index.filter((c) => c.week === weekN)
 
   useEffect(() => {
     fetch('/scenarios/index.json')
@@ -48,13 +50,20 @@ export default function App() {
     if (!selectedId) return
     setScenario(null)
     setPlayed(null)
+    setPending(null)
     fetch(`/scenarios/${selectedId}.json`)
       .then((r) => r.json())
       .then(setScenario)
       .catch(() => setError(`Could not load scenario ${selectedId}`))
   }, [selectedId])
 
-  useEffect(() => setPlayed(null), [weekN])
+  useEffect(() => {
+    setPlayed(null)
+    setPending(null)
+    // Each week has its own cases: open the first one when the current case is not in this week.
+    setSelectedId((id) => (cases.length && !cases.some((c) => c.id === id) ? cases[0].id : id))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weekN, index])
 
   useEffect(() => localStorage.setItem(LOG_KEY, JSON.stringify(log)), [log])
 
@@ -70,13 +79,21 @@ export default function App() {
   const weekPlayed = cases.filter((c) => firstTry[c.id]).length
   const details = cases.flatMap((c) => firstTry[c.id]?.detail ?? [])
   const avgDetail = details.length ? (details.reduce((a, b) => a + b, 0) / details.length).toFixed(1) : null
+  const traps = cases.filter((c) => firstTry[c.id]?.trap)
+  const trapsCaught = traps.filter((c) => firstTry[c.id].correct).length
 
-  function decide(decision: Answer, reason: string) {
+  function firstCall(decision: Answer, reason: string) {
+    if (week.features.traps && scenario?.challenge) setPending({ decision, reason })
+    else decide(decision, reason)
+  }
+
+  function decide(decision: Answer, reason: string, firstDecision?: Answer, debate?: Debate) {
     if (!scenario) return
     // Score from code against the real outcome, never from the LLM.
     const correct = decision === scenario.truth.answer
-    setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, detail: reason ? gradeReasoning(reason).points : undefined, time: new Date().toISOString() }])
-    setPlayed({ decision, reason })
+    setLog((l) => [...l, { caseId: scenario.id, week: weekN, decision, reason, correct, detail: reason ? gradeReasoning(reason).points : undefined, firstDecision, debate, trap: firstDecision && scenario.challenge!.stance !== scenario.truth.answer, time: new Date().toISOString() }])
+    setPending(null)
+    setPlayed({ decision, reason, firstDecision, debate })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -111,6 +128,7 @@ export default function App() {
               Week {weekN}: correct on first try ({weekPlayed} played)
             </div>
             {avgDetail && <div className="mt-1 text-sm text-slate-500">Reasoning detail: {avgDetail}/7 on average</div>}
+            {traps.length > 0 && <div className="mt-1 text-sm text-slate-500">Wrong AI caught: {trapsCaught}/{traps.length} traps met</div>}
             <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
               <span>{log.length} decisions logged</span>
               {log.length > 0 && (
@@ -134,8 +152,8 @@ export default function App() {
             <div className="card p-10 text-center text-slate-400">Loading case…</div>
           ) : (
             <>
-              {played && <Reveal s={scenario} decision={played.decision} reason={played.reason} />}
-              {played && <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} />}
+              {played && <Reveal s={scenario} decision={played.decision} reason={played.reason} firstDecision={played.firstDecision} debate={played.debate} />}
+              {played && <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} firstDecision={played.firstDecision} debate={played.debate} />}
               <CaseFacts s={scenario} />
               <div className="grid gap-6 2xl:grid-cols-2">
                 <div className="space-y-6">
@@ -144,7 +162,8 @@ export default function App() {
                 </div>
                 <ConditionsChart s={scenario} revealed={!!played} />
               </div>
-              {!played && <DecisionPanel key={`${weekN}-${scenario.id}`} askReason={week.features.thinkFirst} onSubmit={decide} />}
+              {!played && !pending && <DecisionPanel key={`${weekN}-${scenario.id}`} askReason={week.features.thinkFirst} onSubmit={firstCall} />}
+              {!played && pending && <ChallengePanel s={scenario} first={pending.decision} reason={pending.reason} onFinal={(d, debate) => decide(d, pending.reason, pending.decision, debate)} />}
             </>
           )}
         </main>

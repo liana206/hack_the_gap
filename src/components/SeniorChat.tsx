@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { askSenior, buildSystemPrompt, offlineFeedback } from '../senior'
-import type { Answer, ChatMessage, Scenario } from '../types'
+import type { Answer, ChatMessage, Debate, Scenario } from '../types'
 import type { Week } from '../weeks'
 
 const OPENER = 'I made my decision. Please give me your feedback.'
@@ -10,16 +10,18 @@ interface Props {
   s: Scenario
   decision: Answer
   reason: string
+  firstDecision?: Answer
+  debate?: Debate
 }
 
-export default function SeniorChat({ week, s, decision, reason }: Props) {
+export default function SeniorChat({ week, s, decision, reason, firstDecision, debate }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [offline, setOffline] = useState(false)
   const started = useRef(false)
   // Sandra only speaks after the reveal, so she may know the truth.
-  const system = buildSystemPrompt(week, s, decision, reason, true)
+  const system = buildSystemPrompt(week, s, decision, reason, true, firstDecision, debate)
 
   async function send(history: ChatMessage[]) {
     setBusy(true)

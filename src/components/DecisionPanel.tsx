@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ANSWERS, type Answer } from '../types'
 
-const MIN_REASON = 15
+export const MIN_REASON = 15
 
 interface Props {
   askReason: boolean // weeks with thinkFirst: write a reason, then lock in. Otherwise a click decides.

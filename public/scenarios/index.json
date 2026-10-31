@@ -40,5 +40,47 @@
     "title": "T01 - generator check before repowering",
     "turbine": "T01",
     "age_years": 23
+  },
+  {
+    "id": "w2-slow-drift",
+    "week": 2,
+    "title": "T05 - weekly data review",
+    "turbine": "T05",
+    "age_years": 11
+  },
+  {
+    "id": "w2-heatwave-fault",
+    "week": 2,
+    "title": "T12 - heatwave warning",
+    "turbine": "T12",
+    "age_years": 7
+  },
+  {
+    "id": "w2-noisy-alarms",
+    "week": 2,
+    "title": "T04 - repeated warnings",
+    "turbine": "T04",
+    "age_years": 12
+  },
+  {
+    "id": "w2-sensor-step",
+    "week": 2,
+    "title": "T10 - after the service visit",
+    "turbine": "T10",
+    "age_years": 10
+  },
+  {
+    "id": "w2-old-worth-fixing",
+    "week": 2,
+    "title": "T06 - generator check before repowering",
+    "turbine": "T06",
+    "age_years": 18
+  },
+  {
+    "id": "w2-end-of-extension",
+    "week": 2,
+    "title": "T08 - generator check",
+    "turbine": "T08",
+    "age_years": 24
   }
 ]

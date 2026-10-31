@@ -40,10 +40,10 @@ export const WEEKS: Week[] = [
   {
     n: 2,
     title: 'Think first, then challenge',
-    description: 'Explain your reasoning before any AI help; a strict senior corrects it.',
+    description: 'Explain your reasoning, then decide if you trust the senior: she is sometimes wrong on purpose.',
     ready: true,
     seniorStyle: 'strict',
-    features: { ...none, thinkFirst: true, strictSenior: true },
+    features: { ...none, thinkFirst: true, strictSenior: true, traps: true },
   },
   {
     n: 3,
