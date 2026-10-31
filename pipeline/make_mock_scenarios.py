@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate synthetic Week 1 and Week 2 scenarios into public/scenarios/.
+"""Generate synthetic Week 1, 2 and 4 scenarios into public/scenarios/.
 
 Pure Python, no packages. Deterministic (fixed seeds), so re-running gives the same files.
 Format: see pipeline/README.md. Run from the repo root:  python3 pipeline/make_mock_scenarios.py
@@ -606,10 +606,149 @@ def end_of_extension():
     }
 
 
+# ---------------------------------------------------------------- week 4: the call decides if the map opens
+# Same flow as week 2. A case with answer "dismantle" shows a button to the second-life map on its result.
+# The turbines are the Monte Mele records with the same gym_case in public/reuse/dataset.json.
+
+def repowering_soon():
+    rng = random.Random(17)
+    start = datetime(2025, 3, 3)
+    t = turbine("T06", 22, repowering_in_years=0.5, last_service_months=10)
+    c = costs(t, 200000, 60000, 40000)
+    series = build(rng, start, t["age_years"], ambient_base=8,
+                   fault_gap=creep(6, 0.6, 0.006, 2.2), stop_at=HISTORY_LEN + 10 * 24)
+    return {
+        "id": "w4-repowering-soon", "week": 4, "title": "T06 - generator check", "source": "synthetic",
+        "turbine": t, "component": "Generator bearing (drive end)",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. The control room asks you to check the generator bearing. "
+                    "Generator overhaul quote: 200k EUR.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "maintenance",
+            "points": ["The fault is real, so the right response is to repair it",
+                       "A turbine that still produces should not be scrapped"],
+            "text": "The gap is growing, so this is a real fault, and a real fault gets repaired. T06 is still "
+                    "producing, and I do not scrap a machine that produces. I would book the overhaul.",
+        },
+        "truth": {
+            "answer": "dismantle",
+            "outcome": "The bearing failed 10 days later. With repowering months away, T06 was dismantled, and the "
+                       "damaged generator could no longer be sold.",
+            "explanation": "The fault was real, but a real fault does not decide the call alone. Six months of "
+                           f"earnings, about {t['annual_margin_eur'] * t['remaining_life_years']:,.0f} EUR, cannot pay "
+                           "for a 200k overhaul. Dismantling now is cheapest and keeps the parts sellable.",
+            "cost_if": cost_if(t, c, fault=True, maint_days=14, failure_ends_life=True, damaged_resale_eur=10000),
+        },
+    }
+
+
+def extension_ending():
+    rng = random.Random(18)
+    start = datetime(2025, 10, 13)
+    t = turbine("T10", 24, last_service_months=12)
+    c = costs(t, 280000, 50000, 35000)
+    series = build(rng, start, t["age_years"], ambient_base=11,
+                   fault_gap=creep(5, 0.5, 0.006, 2.2), stop_at=HISTORY_LEN + 12 * 24)
+    return {
+        "id": "w4-extension-ending", "week": 4, "title": "T10 - generator check", "source": "synthetic",
+        "turbine": t, "component": "Generator bearing (non-drive end)",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. Its life extension ends in about a year, with no plan to renew it. The control "
+                    "room asks you to check the generator bearing. Generator overhaul quote: 280k EUR.",
+        "alarms": [{"t": ts(start, 19 * 24 + 8), "text": "WARNING: generator bearing temperature trend high"}],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "dismantle",
+            "points": ["The overhaul costs more than the turbine can still earn",
+                       "Dismantling before the failure keeps the parts sellable"],
+            "text": f"The gap keeps growing, but one more year earns about {t['annual_margin_eur']:,.0f} EUR and the "
+                    f"overhaul costs {c['maintenance_eur']:,} EUR. I would dismantle it while the parts can still be sold.",
+        },
+        "truth": {
+            "answer": "dismantle",
+            "outcome": "T10 was dismantled before the bearing failed, and its parts stayed intact for a second life.",
+            "explanation": "The gap kept growing, so the fault was real. A 280k overhaul cannot be earned back in "
+                           "about one remaining year, and dismantling first keeps the parts sellable.",
+            "cost_if": cost_if(t, c, fault=True, maint_days=14, failure_ends_life=True, damaged_resale_eur=5000),
+        },
+    }
+
+
+def old_but_cheap_fix():
+    rng = random.Random(19)
+    start = datetime(2025, 5, 19)
+    t = turbine("T04", 20, repowering_in_years=3)
+    c = costs(t, 40000, 60000, 40000)
+    series = build(rng, start, t["age_years"], ambient_base=14,
+                   fault_gap=creep(7, 0.5, 0.008, 2.0), stop_at=HISTORY_LEN + 11 * 24)
+    return {
+        "id": "w4-old-but-cheap-fix", "week": 4, "title": "T04 - gearbox check", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. The control room asks you to check the gearbox bearing. "
+                    "Bearing replacement quote: 40k EUR.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "dismantle",
+            "points": ["At the end of its design life, the turbine is not worth repairing",
+                       "Selling the parts makes dismantling attractive"],
+            "text": f"T04 has reached its design life of {t['design_life_years']} years and it has a fault. That is the "
+                    f"moment to stop. I would dismantle it and sell the parts for about {c['resale_parts_eur']:,} EUR.",
+        },
+        "truth": {
+            "answer": "maintenance",
+            "outcome": "Left alone, the bearing failed 11 days later. A planned bearing swap would have kept T04 "
+                       "earning until repowering.",
+            "explanation": "The design life is not a deadline. Three more years at about "
+                           f"{t['annual_margin_eur']:,.0f} EUR per year earn far more than a 40k repair, so no parts "
+                           "go to a second life yet.",
+            "cost_if": cost_if(t, c, fault=True, failure_repair_eur=150000, failure_offline_days=20),
+        },
+    }
+
+
+def old_and_fine():
+    rng = random.Random(20)
+    start = datetime(2025, 7, 14)
+    t = turbine("T05", 20, repowering_in_years=3)
+    c = costs(t, 25000, 60000, 40000)
+    series = build(rng, start, t["age_years"], ambient_base=19)
+    return {
+        "id": "w4-old-and-fine", "week": 4, "title": "T05 - end of design life review", "source": "synthetic",
+        "turbine": t, "component": "Gearbox bearing",
+        "decision_date": decision_date(start),
+        "briefing": f"{age_label(t)}. It reached its design life this year, and the asset manager asks if it should "
+                    "keep running.",
+        "alarms": [],
+        "costs": c,
+        "series": series,
+        "challenge": {
+            "stance": "ok",
+            "points": ["The gap stays inside the normal range", "It can still earn for years until repowering"],
+            "text": "Reaching the design life is not a fault. The gap stays inside the normal range and the site runs "
+                    "until repowering, so I would keep it running.",
+        },
+        "truth": {
+            "answer": "ok",
+            "outcome": "T05 kept running normally and passed its life-extension inspection.",
+            "explanation": "Age alone is no reason to act. The gap stayed near zero, and dismantling would throw "
+                           "away three years of earnings.",
+            "cost_if": cost_if(t, c, fault=False),
+        },
+    }
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     scenarios = [healthy(), gearbox(), heatwave(), old_healthy(), warranty_generator(), old_generator(),
-                 slow_drift(), heatwave_fault(), noisy_alarms(), sensor_step(), old_worth_fixing(), end_of_extension()]
+                 slow_drift(), heatwave_fault(), noisy_alarms(), sensor_step(), old_worth_fixing(), end_of_extension(),
+                 repowering_soon(), extension_ending(), old_but_cheap_fix(), old_and_fine()]
     for s in scenarios:
         ci = s["truth"]["cost_if"]
         cheapest = min(ci, key=ci.get)

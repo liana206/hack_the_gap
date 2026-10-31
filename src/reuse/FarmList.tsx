@@ -120,7 +120,7 @@ function FarmTurbines({ turbines, due, lotId, selTurbine, farmLots, turbineCount
                   <span className={due.includes(t) ? 'font-medium text-orange-600' : 'text-slate-500'}>retires {t.retire_year}</span>
                   {t.gym_case && (
                     <span className={`rounded px-1 text-[10px] ${gym ? 'bg-emerald-50 text-emerald-700' : 'bg-sky-50 text-sky-700'}`}>
-                      {gym ? 'diagnosed in gym ✓' : 'gym case'}
+                      {gym ? 'diagnosed in task ✓' : 'task case'}
                     </span>
                   )}
                 </div>

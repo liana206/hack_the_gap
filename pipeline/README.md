@@ -8,7 +8,7 @@ public/scenarios/index.json        # [{ "id", "week", "title" }, ...]  (list ord
 public/scenarios/<id>.json         # one file per case, format below
 ```
 
-- `make_mock_scenarios.py` – 12 synthetic cases, 6 each for Weeks 1 and 2 (no packages, deterministic). Run from repo root:
+- `make_mock_scenarios.py` – 16 synthetic cases: 6 each for Weeks 1 and 2, 4 for Week 4 (no packages, deterministic). Run from repo root:
   `python3 pipeline/make_mock_scenarios.py`
 
 ## Scenario format
@@ -76,5 +76,7 @@ Week 2 cases also have `"challenge": { "stance": "ok", "text": "...", "points": 
 and the separate arguments the junior must answer in the debate if they go against her.
 It is scripted, so no LLM needs the truth. If `stance` differs from `truth.answer`, the case is a wrong-AI trap.
 
-Ideas for later weeks: a case where the timing of maintenance
-matters (week 3, add price data), an end-of-life case with part resale values (week 4).
+Week 4 cases use the Week 2 flow. A case with `truth.answer` `"dismantle"` shows a button to the second-life map on its result,
+on the turbine in `public/reuse/dataset.json` whose `gym_case` is that case's id.
+
+Ideas for later weeks: a case where the timing of maintenance matters (week 3, add price data).
