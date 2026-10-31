@@ -40,6 +40,7 @@ export interface Scenario {
     history_len: number // index < history_len is visible before the decision
     component_temp: number[]
     component_expected: number[]
+    gap_24h: number[] // 24 h trailing mean of measured - expected (°C)
     power_kw: number[]
     wind_ms: number[]
     ambient_c: number[]

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import CaseFacts from './components/CaseFacts'
 import CaseList from './components/CaseList'
-import { ConditionsChart, TemperatureChart } from './components/Charts'
+import { ConditionsChart, GapChart, TemperatureChart } from './components/Charts'
 import DecisionPanel from './components/DecisionPanel'
 import Reveal from './components/Reveal'
 import SeniorChat from './components/SeniorChat'
@@ -127,7 +127,10 @@ export default function App() {
               {played && <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} />}
               <CaseFacts s={scenario} />
               <div className="grid gap-6 2xl:grid-cols-2">
-                <TemperatureChart s={scenario} revealed={!!played} />
+                <div className="space-y-6">
+                  <TemperatureChart s={scenario} revealed={!!played} />
+                  <GapChart s={scenario} revealed={!!played} showHint={week.features.readingHelp} />
+                </div>
                 <ConditionsChart s={scenario} revealed={!!played} />
               </div>
               {!played && <DecisionPanel key={scenario.id} askReason={week.features.thinkFirst} onSubmit={decide} />}

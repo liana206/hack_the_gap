@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   CartesianGrid,
   Line,
@@ -19,6 +19,9 @@ const C = {
   wind: '#1baf7a',
   ambient: '#eb6834',
   alarm: '#d97706',
+  gap: '#2a78d6',
+  gapHigh: '#dc2626',
+  band: '#10b981',
   grid: '#eef2f6',
   axis: '#64748b',
 }
@@ -27,6 +30,9 @@ interface Row {
   t: string
   temp: number
   expected: number
+  tempAvg: number // 24 h trailing mean
+  expectedAvg: number
+  gap: number | null // series.gap_24h; null until a full 24 h window exists
   power: number
   wind: number
   ambient: number
@@ -35,17 +41,32 @@ interface Row {
 const fmtDay = (t: string) => `${t.slice(8, 10)}.${t.slice(5, 7)}.`
 const fmtHour = (t: string) => `${fmtDay(t)} ${t.slice(11, 16)}`
 
+/** Trailing mean over the last `w` points: uses only past values, so it never leaks the hidden future. */
+function rollingMean(xs: number[], w: number): number[] {
+  let sum = 0
+  return xs.map((x, i) => {
+    sum += x
+    if (i >= w) sum -= xs[i - w]
+    return Math.round((sum / Math.min(i + 1, w)) * 10) / 10
+  })
+}
+
 /** Builds chart rows; before the reveal only the history (index < history_len) is included. */
 function useRows(s: Scenario, revealed: boolean) {
   return useMemo(() => {
     const S = s.series
     const n = revealed ? S.t.length : S.history_len
+    const tempAvg = rollingMean(S.component_temp, 24)
+    const expectedAvg = rollingMean(S.component_expected, 24)
     const rows: Row[] = []
     for (let i = 0; i < n; i++)
       rows.push({
         t: S.t[i],
         temp: S.component_temp[i],
         expected: S.component_expected[i],
+        tempAvg: tempAvg[i],
+        expectedAvg: expectedAvg[i],
+        gap: i >= 23 ? S.gap_24h[i] : null,
         power: S.power_kw[i],
         wind: S.wind_ms[i],
         ambient: S.ambient_c[i],
@@ -57,6 +78,21 @@ function useRows(s: Scenario, revealed: boolean) {
 }
 
 const axisProps = { stroke: C.axis, fontSize: 11, tickLine: false, axisLine: false } as const
+
+/** Only temperature alarms belong on temperature charts; others (e.g. SCADA comms) stay in the alarm list. */
+const isTempAlarm = (text: string) => /temperat/i.test(text)
+
+function AlarmLines({ s, rows, revealed, decisionT }: { s: Scenario; rows: Row[]; revealed: boolean; decisionT: string }) {
+  return (
+    <>
+      {s.alarms
+        .filter((a) => isTempAlarm(a.text) && (revealed || a.t <= decisionT))
+        .map((a) => (
+          <ReferenceLine key={a.t} x={rows.find((r) => r.t >= a.t)?.t} stroke={C.alarm} strokeDasharray="2 3" />
+        ))}
+    </>
+  )
+}
 
 function FutureShade({ revealed, decisionT, endT }: { revealed: boolean; decisionT: string; endT: string }) {
   return (
@@ -96,7 +132,9 @@ function Legend({ items }: { items: { color: string; label: string; dashed?: boo
 
 export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boolean }) {
   const { rows, ticks, decisionT, endT } = useRows(s, revealed)
-  const alarms = s.alarms.filter((a) => revealed || a.t <= decisionT)
+  const [hourly, setHourly] = useState(false)
+  const hasAlarms = s.alarms.some((a) => isTempAlarm(a.text) && (revealed || a.t <= decisionT))
+  const avg = hourly ? '' : ' (24 h avg)'
   return (
     <div className="card p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -104,13 +142,19 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
           <h3 className="card-title">{s.component} temperature</h3>
           <p className="mt-0.5 text-sm text-slate-500">Measured vs what a healthy part would show at this power and weather</p>
         </div>
-        <Legend
-          items={[
-            { color: C.measured, label: 'Measured' },
-            { color: C.expected, label: 'Expected (healthy)', dashed: true },
-            ...(alarms.length ? [{ color: C.alarm, label: 'Alarm', dashed: true }] : []),
-          ]}
-        />
+        <div className="flex flex-col items-end gap-1.5">
+          <Legend
+            items={[
+              { color: C.measured, label: 'Measured' },
+              { color: C.expected, label: 'Expected (healthy)', dashed: true },
+              ...(hasAlarms ? [{ color: C.alarm, label: 'Temperature alarm', dashed: true }] : []),
+            ]}
+          />
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-500">
+            <input type="checkbox" checked={hourly} onChange={(e) => setHourly(e.target.checked)} className="accent-accent" />
+            show hourly values
+          </label>
+        </div>
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={rows} syncId="case" margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
@@ -123,14 +167,82 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
             {...axisProps}
           />
           <FutureShade revealed={revealed} decisionT={decisionT} endT={endT} />
-          {alarms.map((a) => (
-            <ReferenceLine key={a.t} x={rows.find((r) => r.t >= a.t)?.t} stroke={C.alarm} strokeDasharray="2 3" />
-          ))}
-          <ChartTooltip unit={{ Measured: '°C', Expected: '°C' }} />
-          <Line name="Expected" dataKey="expected" stroke={C.expected} strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false} type="monotone" />
-          <Line name="Measured" dataKey="temp" stroke={C.measured} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
+          <AlarmLines s={s} rows={rows} revealed={revealed} decisionT={decisionT} />
+          <ChartTooltip unit={{ ['Measured' + avg]: '°C', ['Expected' + avg]: '°C' }} />
+          <Line name={'Expected' + avg} dataKey={hourly ? 'expected' : 'expectedAvg'} stroke={C.expected} strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false} type="monotone" />
+          <Line name={'Measured' + avg} dataKey={hourly ? 'temp' : 'tempAvg'} stroke={C.measured} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
         </LineChart>
       </ResponsiveContainer>
+      <ShadeNote revealed={revealed} />
+    </div>
+  )
+}
+
+const BAND = 2 // °C: |gap| up to this is normal scatter
+
+/** Measured minus expected, 24 h average. The chart the junior should learn to judge by. */
+export function GapChart({ s, revealed, showHint }: { s: Scenario; revealed: boolean; showHint: boolean }) {
+  const { rows, ticks, decisionT, endT } = useRows(s, revealed)
+  // Axis at least -5..+5 so a healthy case looks calm; computed from the rows shown, so it never hints at the future.
+  const gaps = rows.map((r) => r.gap).filter((g): g is number => g !== null)
+  const dataMin = Math.min(...gaps)
+  const dataMax = Math.max(...gaps)
+  const yMin = Math.min(-5, Math.floor((dataMin - 1) / 5) * 5)
+  const yMax = Math.max(5, Math.ceil((dataMax + 1) / 5) * 5)
+  const step = yMax - yMin > 30 ? 10 : 5
+  const yTicks = Array.from({ length: Math.floor((yMax - yMin) / step) + 1 }, (_, i) => yMin + i * step)
+  // Line colour switches to red above +BAND: a vertical gradient over the line's own bounding box (data min..max).
+  const split = dataMax > BAND ? Math.min(1, (dataMax - BAND) / (dataMax - dataMin || 1)) : 0
+  const gradId = `gap-${s.id}`
+
+  return (
+    <div className="card p-5">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <div>
+          <h3 className="card-title">Gap: measured − expected (24 h average)</h3>
+          <p className="mt-0.5 text-sm text-slate-500">How much warmer the part runs than a healthy one would</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-5 rounded-sm" style={{ background: C.band, opacity: 0.18 }} />
+            Normal range ±{BAND} °C
+          </span>
+          <Legend items={[{ color: C.gap, label: 'Gap' }, { color: C.gapHigh, label: `Above +${BAND} °C` }]} />
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={180}>
+        <LineChart data={rows} syncId="case" margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset={0} stopColor={split > 0 ? C.gapHigh : C.gap} />
+              <stop offset={split} stopColor={split > 0 ? C.gapHigh : C.gap} />
+              <stop offset={split} stopColor={C.gap} />
+              <stop offset={1} stopColor={C.gap} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke={C.grid} vertical={false} />
+          <XAxis dataKey="t" ticks={ticks} tickFormatter={fmtDay} {...axisProps} />
+          <YAxis domain={[yMin, yMax]} ticks={yTicks} allowDataOverflow tickFormatter={(v) => `${v > 0 ? '+' : ''}${Math.round(v)}°`} {...axisProps} />
+          <ReferenceArea
+            y1={-BAND}
+            y2={BAND}
+            fill={C.band}
+            fillOpacity={0.12}
+            label={{ value: 'normal range', position: 'insideTopLeft', fontSize: 10, fill: '#059669' }}
+          />
+          <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1} />
+          <FutureShade revealed={revealed} decisionT={decisionT} endT={endT} />
+          <AlarmLines s={s} rows={rows} revealed={revealed} decisionT={decisionT} />
+          <ChartTooltip unit={{ Gap: '°C' }} />
+          <Line name="Gap" dataKey="gap" stroke={`url(#${gradId})`} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
+        </LineChart>
+      </ResponsiveContainer>
+      {showHint && (
+        <p className="mt-2 rounded-lg bg-accent-soft px-3 py-2 text-sm text-slate-700">
+          <b className="font-semibold text-navy">Tip:</b> Judge the gap, not the temperature: a gap that stays inside the band is normal, a gap that keeps growing is a
+          developing fault.
+        </p>
+      )}
       <ShadeNote revealed={revealed} />
     </div>
   )

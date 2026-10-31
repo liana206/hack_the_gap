@@ -7,6 +7,7 @@ export interface WeekFeatures {
   traps: boolean // senior sometimes argues a wrong conclusion on purpose
   scheduling: boolean // pick a maintenance window using (fake) price data
   secondLife: boolean // recycling / resale agent for dismantled parts
+  readingHelp: boolean // hint line under the gap chart on how to read it
 }
 
 export interface Week {
@@ -18,7 +19,14 @@ export interface Week {
   features: WeekFeatures
 }
 
-const none: WeekFeatures = { thinkFirst: false, strictSenior: false, traps: false, scheduling: false, secondLife: false }
+const none: WeekFeatures = {
+  thinkFirst: false,
+  strictSenior: false,
+  traps: false,
+  scheduling: false,
+  secondLife: false,
+  readingHelp: false,
+}
 
 export const WEEKS: Week[] = [
   {
@@ -27,7 +35,7 @@ export const WEEKS: Week[] = [
     description: 'Decide on six turbines, then a friendly senior explains what mattered.',
     ready: true,
     seniorStyle: 'coach',
-    features: none,
+    features: { ...none, readingHelp: true },
   },
   {
     n: 2,
@@ -51,6 +59,6 @@ export const WEEKS: Week[] = [
     description: 'For end-of-life turbines, decide which parts to reuse, sell or recycle.',
     ready: false,
     seniorStyle: 'strict',
-    features: { thinkFirst: true, strictSenior: true, traps: true, scheduling: true, secondLife: true },
+    features: { ...none, thinkFirst: true, strictSenior: true, traps: true, scheduling: true, secondLife: true },
   },
 ]

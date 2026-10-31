@@ -31,6 +31,7 @@ public/scenarios/<id>.json         # one file per case, format below
     "history_len": 504,                       // indices < history_len are VISIBLE before the decision
     "component_temp":     [/* °C, measured */],
     "component_expected": [/* °C, what a healthy part would show */],
+    "gap_24h":            [/* °C, 24 h trailing mean of measured - expected (gap chart) */],
     "power_kw":           [/* kW */],
     "wind_ms":            [/* m/s */],
     "ambient_c":          [/* °C outside */]
