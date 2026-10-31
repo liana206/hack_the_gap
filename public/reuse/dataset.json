@@ -2,14 +2,40 @@
   "farms": [
     {
       "id": "monte-mele", "name": "Monte Mele", "country": "IT", "place": "Agrigento / Realmonte, Sicily",
-      "lat": 37.31, "lon": 13.46, "model": "G52 (assumed)", "turbines": 11, "mw": 9,
+      "lat": 37.31, "lon": 13.46, "model": "2.05 MW (gym, synthetic)", "turbines": 11, "mw": 9,
       "commissioned": 2005, "end_of_life": 2030, "alpiq_share": 1, "regime": "none",
-      "assumed": "Turbine model not published; 850 kW class assumed (Gamesa G52).",
+      "assumed": "Model not published. For the demo this farm hosts the 11 synthetic turbines T01–T11 of the Week 1–2 cases (2.05 MW each, some replaced since 2005); that does not match the public ~9 MW.",
       "source": "https://www.alpiq.com/energy/assets/wind-power",
       "lots": [
-        { "id": "monte-mele-blade", "item": "blade", "quantity": 33, "unit_mass_t": 2.5, "length_m": 25, "grade": "C", "repairs": "Leading-edge erosion on most blades; 4 lightning repairs", "passport_pct": 55, "item_status": "waste" },
-        { "id": "monte-mele-steel", "item": "steel", "quantity": 22, "unit_mass_t": 28, "length_m": 22, "diameter_m": 2.8, "grade": "C", "repairs": "Coating renewed 2017; corrosion at flanges", "passport_pct": 60, "item_status": "waste" },
-        { "id": "monte-mele-electrical", "item": "electrical", "quantity": 11, "unit_mass_t": 9, "model": "G52", "grade": "C", "repairs": "3 generator rewinds", "passport_pct": 50, "item_status": "waste" }
+        { "id": "monte-mele-blade", "item": "blade", "quantity": 33, "unit_mass_t": 7.5, "length_m": 45, "grade": "C", "repairs": "Leading-edge erosion on most blades; 4 lightning repairs", "passport_pct": 60, "item_status": "product" },
+        { "id": "monte-mele-steel", "item": "steel", "quantity": 33, "unit_mass_t": 48, "length_m": 25, "diameter_m": 4.0, "grade": "B", "repairs": "Coating renewed 2017; corrosion at flanges", "passport_pct": 65, "item_status": "product" },
+        { "id": "monte-mele-electrical", "item": "electrical", "quantity": 11, "unit_mass_t": 13, "model": "2.05 MW", "grade": "C", "repairs": "3 generator rewinds", "passport_pct": 55, "item_status": "product" }
+      ],
+      "turbine_records": [
+        { "id": "T01", "retire_year": 2025, "commissioned": 2002, "gym_case": "w1-old-generator", "item_status": "waste",
+          "reason": "Generator bearing failed 9 days after the check; dismantled ahead of repowering",
+          "grades": { "blade": "C", "steel": "B", "electrical": "C" },
+          "notes": { "electrical": "Damaged generator: no resale possible (case outcome)", "blade": "23 years of leading-edge erosion" } },
+        { "id": "T08", "retire_year": 2027, "commissioned": 2005,
+          "reason": "Blade root crack found in the 2026 inspection; repair uneconomic (pseudo)",
+          "grades": { "blade": "C", "steel": "B", "electrical": "B" },
+          "notes": { "blade": "Root crack on one blade; two blades intact" } },
+        { "id": "T02", "retire_year": 2028, "commissioned": 2004, "gym_case": "w1-old-healthy",
+          "reason": "Passed life-extension inspection; runs until the site is repowered",
+          "grades": { "blade": "B", "steel": "B", "electrical": "B" } },
+        { "id": "T06", "retire_year": 2029, "reason": "Yaw-system wear; life extension not approved (pseudo)" },
+        { "id": "T04", "retire_year": 2030, "reason": "Retires with the site repowering (pseudo)" },
+        { "id": "T05", "retire_year": 2030, "reason": "Retires with the site repowering (pseudo)" },
+        { "id": "T10", "retire_year": 2031, "reason": "Last of the original turbines; retires after repowering phase 1 (pseudo)" },
+        { "id": "T03", "retire_year": 2041, "commissioned": 2016, "gym_case": "w1-gearbox",
+          "reason": "Gearbox replaced in 2025 after the bearing seized; runs to design life",
+          "grades": { "blade": "A", "steel": "A", "electrical": "B" } },
+        { "id": "T11", "retire_year": 2042, "commissioned": 2017, "gym_case": "w1-heatwave",
+          "reason": "Healthy (heatwave alarm was weather); runs to design life", "grades": { "blade": "A", "steel": "A", "electrical": "A" } },
+        { "id": "T07", "retire_year": 2044, "commissioned": 2019, "gym_case": "w1-healthy",
+          "reason": "Healthy; runs to design life", "grades": { "blade": "A", "steel": "A", "electrical": "A" } },
+        { "id": "T09", "retire_year": 2047, "commissioned": 2022, "gym_case": "w1-warranty-generator",
+          "reason": "Generator rewound in 2025; runs to design life", "grades": { "blade": "A", "steel": "A", "electrical": "B" } }
       ]
     },
     {
@@ -96,109 +122,133 @@
   "hubs": [
     { "id": "H-catania", "name": "Catania port hub", "country": "IT", "lat": 37.49, "lon": 15.09, "capacity": { "blade": 120, "steel": 200, "electrical": 80 }, "licensed_for_waste": true },
     { "id": "H-lanouvelle", "name": "Port-La Nouvelle hub", "country": "FR", "lat": 43.02, "lon": 3.06, "capacity": { "blade": 40, "steel": 60, "electrical": 20 }, "licensed_for_waste": true },
+    { "id": "H-valence", "name": "Valence Rhône-port hub", "country": "FR", "lat": 44.92, "lon": 4.87, "capacity": { "blade": 30, "steel": 60, "electrical": 20 }, "licensed_for_waste": true },
     { "id": "H-basel", "name": "Basel Rhine-port hub", "country": "CH", "lat": 47.58, "lon": 7.59, "capacity": { "blade": 20, "steel": 30, "electrical": 10 }, "licensed_for_waste": false },
     { "id": "H-uddevalla", "name": "Uddevalla port hub", "country": "SE", "lat": 58.35, "lon": 11.93, "capacity": { "blade": 40, "steel": 60, "electrical": 20 }, "licensed_for_waste": true }
   ],
 
   "receivers": [
     {
-      "id": "R1", "name": "Open call: Palermo cycle shelters", "kind": "open_call", "country": "IT", "lat": 38.12, "lon": 13.36,
+      "id": "R1", "demand_source": "Architecture open call", "name": "Open call: Palermo cycle shelters", "kind": "open_call", "country": "IT", "lat": 38.12, "lon": 13.36,
       "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 2, "quantity_max": 6, "needed_by": 2037, "deadline": 2033,
       "min_grade": "B", "length_min": 30, "length_max": 46, "needs_whole_blade": true, "needs_geometry_model": true,
       "avoided_co2_per_t": 0.6, "description": "City architecture competition for covered bike parking built from whole blades.",
       "precedent": { "label": "Gdańsk Tech open competition (blade bike shed)", "url": "https://wilis.pg.edu.pl/en/redivivus-wind-turbine-blades/architectural-competition" }
     },
     {
-      "id": "R2", "name": "Open call: Montpellier blade pavilion", "kind": "open_call", "country": "FR", "lat": 43.61, "lon": 3.88,
+      "id": "R2", "demand_source": "Architecture open call", "name": "Open call: Montpellier blade pavilion", "kind": "open_call", "country": "FR", "lat": 43.61, "lon": 3.88,
       "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 3, "quantity_max": 8, "needed_by": 2032, "deadline": 2029,
       "min_grade": "B", "length_min": 28, "length_max": 36, "needs_whole_blade": true, "needs_geometry_model": true,
       "avoided_co2_per_t": 0.6, "description": "Regional open call for a temporary pavilion; jury asks for blades of 28–36 m.",
       "precedent": { "label": "Gdańsk Tech open competition (blade bike shed)", "url": "https://wilis.pg.edu.pl/en/redivivus-wind-turbine-blades/architectural-competition" }
     },
     {
-      "id": "R3", "name": "Catania–Etna greenway footbridge", "kind": "infrastructure", "country": "IT", "lat": 37.60, "lon": 15.05,
+      "id": "R3", "demand_source": "Public tender", "name": "Catania–Etna greenway footbridge", "kind": "infrastructure", "country": "IT", "lat": 37.60, "lon": 15.05,
       "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 2, "quantity_max": 2, "needed_by": 2037,
       "min_grade": "A", "min_passport_pct": 90, "length_min": 40, "length_max": 46, "needs_whole_blade": true, "approval_months": 18,
       "avoided_co2_per_t": 1.0, "description": "Cycle bridge in the regional active-travel plan; blades as main girders, needs structural approval.",
       "precedent": { "label": "Re-Wind BladeBridge, Midleton greenway (Cork)", "url": "https://www.designboom.com/architecture/repurposed-wind-turbine-blades-bladebridge-ireland-02-15-2022/" }
     },
     {
-      "id": "R4", "name": "A19 noise-barrier programme (Sicily)", "kind": "infrastructure", "country": "IT", "lat": 37.58, "lon": 14.35,
+      "id": "R4", "demand_source": "Public tender", "name": "A19 noise-barrier programme (Sicily)", "kind": "infrastructure", "country": "IT", "lat": 37.58, "lon": 14.35,
       "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 20, "quantity_max": 80, "needed_by": 2036,
       "min_grade": "C", "avoided_co2_per_t": 0.4,
       "description": "Road-authority programme for noise barriers along the A19; blade segments as wall panels.",
       "precedent": { "label": "Blade-Made noise barrier (NL)", "url": "https://materialdistrict.com/article/noise-barrier-from-recycled-wind-turbine-blades-unveiled/" }
     },
     {
-      "id": "R5", "name": "A7 Rhône-valley noise barrier", "kind": "infrastructure", "country": "FR", "lat": 44.93, "lon": 4.87,
+      "id": "R5", "demand_source": "Public tender", "name": "A7 Rhône-valley noise barrier", "kind": "infrastructure", "country": "FR", "lat": 44.93, "lon": 4.87,
       "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 10, "quantity_max": 40, "needed_by": 2033,
       "min_grade": "C", "avoided_co2_per_t": 0.4,
       "description": "Motorway noise-barrier renewal; segmented blades accepted.",
       "precedent": { "label": "Białystok Tech: blades as road noise barriers", "url": "https://scienceinpoland.pl/en/news/news%2C100350%2Cscientists-convert-wind-turbine-blades-road-noise-barriers.html" }
     },
     {
-      "id": "R6", "name": "Lyon bus-shelter programme", "kind": "street_furniture", "country": "FR", "lat": 45.76, "lon": 4.84,
+      "id": "R6", "demand_source": "Municipal programme", "name": "Lyon bus-shelter programme", "kind": "street_furniture", "country": "FR", "lat": 45.76, "lon": 4.84,
       "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 4, "quantity_max": 12, "needed_by": 2032,
       "min_grade": "C", "avoided_co2_per_t": 0.5,
       "description": "Metropolitan programme for shelters and benches; segments accepted.",
       "precedent": { "label": "Wikado playground, Rotterdam (Superuse)", "url": "https://www.superuse-studios.com/?p=52109" }
     },
     {
-      "id": "R7", "name": "Zürich playground programme", "kind": "street_furniture", "country": "CH", "lat": 47.37, "lon": 8.54,
+      "id": "R7", "demand_source": "Municipal programme", "name": "Zürich playground programme", "kind": "street_furniture", "country": "CH", "lat": 47.37, "lon": 8.54,
       "item": "blade", "tier": 2, "stage": "announced", "quantity_min": 2, "quantity_max": 6, "needed_by": 2038,
       "min_grade": "B", "avoided_co2_per_t": 0.5,
       "description": "City playground renewal; blade segments as play structures.",
       "precedent": { "label": "Wikado playground, Rotterdam (Superuse)", "url": "https://www.superuse-studios.com/?p=52109" }
     },
     {
-      "id": "R8", "name": "Composite recycler (Navarra)", "kind": "recycler", "country": "ES", "lat": 42.60, "lon": -1.60,
+      "id": "R8", "demand_source": "Industrial offtake", "name": "Composite recycler (Navarra)", "kind": "recycler", "country": "ES", "lat": 42.60, "lon": -1.60,
       "item": "blade", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 2000, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 0.2, "description": "Pseudo material-recycling plant; takes any blade, whole or cut."
     },
     {
-      "id": "R9", "name": "Cement co-processing (Lombardy)", "kind": "coprocessing", "country": "IT", "lat": 45.60, "lon": 9.90,
+      "id": "R9", "demand_source": "Industrial offtake", "name": "Cement co-processing (Lombardy)", "kind": "coprocessing", "country": "IT", "lat": 45.60, "lon": 9.90,
       "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 0.11, "description": "Pseudo cement kiln; blades as fuel and raw material (0.11 t CO2 saved per t, WindEurope)."
     },
     {
-      "id": "R10", "name": "Thermal treatment (Basel)", "kind": "coprocessing", "country": "CH", "lat": 47.55, "lon": 7.62,
+      "id": "R10", "demand_source": "Industrial offtake", "name": "Thermal treatment (Basel)", "kind": "coprocessing", "country": "CH", "lat": 47.55, "lon": 7.62,
       "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 500, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 0.08, "description": "Pseudo Swiss thermal treatment, ash to cement (VVEA Art. 10 route)."
     },
     {
-      "id": "R11", "name": "Puglia wind farm (Gamesa fleet)", "kind": "wind_farm", "country": "IT", "lat": 41.25, "lon": 15.55,
+      "id": "R11", "demand_source": "Operator network", "name": "Puglia wind farm (Gamesa fleet)", "kind": "wind_farm", "country": "IT", "lat": 41.25, "lon": 15.55,
       "item": "electrical", "tier": 1, "stage": "selected", "quantity_min": 2, "quantity_max": 25, "needed_by": 2036,
       "min_grade": "B", "models": ["ECO 80", "G8X", "G90"], "avoided_co2_per_t": 3.0,
       "description": "Operating farm keeping its fleet running; buys generators and converters as spares."
     },
     {
-      "id": "R12", "name": "Castilla y León wind farm (Vestas/Enercon)", "kind": "wind_farm", "country": "ES", "lat": 41.65, "lon": -4.70,
+      "id": "R12", "demand_source": "Operator network", "name": "Castilla y León wind farm (Vestas/Enercon)", "kind": "wind_farm", "country": "ES", "lat": 41.65, "lon": -4.70,
       "item": "electrical", "tier": 1, "stage": "call_open", "quantity_min": 1, "quantity_max": 8, "needed_by": 2035,
       "min_grade": "B", "models": ["V66", "E-70", "E-82"], "avoided_co2_per_t": 3.0,
       "description": "Life-extension project looking for compatible drivetrain spares."
     },
     {
-      "id": "R13", "name": "Electrical & metals recycler (Milan)", "kind": "recycler", "country": "IT", "lat": 45.46, "lon": 9.19,
+      "id": "R13", "demand_source": "Industrial offtake", "name": "Electrical & metals recycler (Milan)", "kind": "recycler", "country": "IT", "lat": 45.46, "lon": 9.19,
       "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 1000, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo recycler for copper, electrical steel and electronics."
     },
     {
-      "id": "R14", "name": "Genoa port logistics hall", "kind": "construction", "country": "IT", "lat": 44.41, "lon": 8.93,
+      "id": "R14", "demand_source": "Private developer", "name": "Genoa port logistics hall", "kind": "construction", "country": "IT", "lat": 44.41, "lon": 8.93,
       "item": "steel", "tier": 1, "stage": "announced", "quantity_min": 6, "quantity_max": 24, "needed_by": 2037,
       "min_grade": "B", "diameter_min": 3.5, "diameter_max": 4.5, "length_min": 20, "approval_months": 12,
       "avoided_co2_per_t": 1.5, "description": "Planned hall using reclaimed tower sections as columns; needs structural approval.",
       "precedent": { "label": "EPFL stock-constrained design (reclaimed steel)", "url": "https://infoscience.epfl.ch/entities/publication/392a9e8d-4bad-44b4-8f1c-1a37b216096c/thesisdetails" }
     },
     {
-      "id": "R15", "name": "Steel mill (Brescia)", "kind": "factory", "country": "IT", "lat": 45.54, "lon": 10.21,
+      "id": "R15", "demand_source": "Industrial offtake", "name": "Steel mill (Brescia)", "kind": "factory", "country": "IT", "lat": 45.54, "lon": 10.21,
       "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo electric-arc furnace taking tower steel as scrap."
     },
     {
-      "id": "R16", "name": "Steel mill (Fos-sur-Mer)", "kind": "factory", "country": "FR", "lat": 43.44, "lon": 4.94,
+      "id": "R16", "demand_source": "Industrial offtake", "name": "Steel mill (Fos-sur-Mer)", "kind": "factory", "country": "FR", "lat": 43.44, "lon": 4.94,
       "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null,
       "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo steel mill taking tower steel as scrap."
-    }
+    },
+    {"id": "R17", "demand_source": "Industrial offtake", "name": "Steel works (Catania)", "kind": "factory", "country": "IT", "lat": 37.43, "lon": 15.03, "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 5000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo electric-arc furnace in eastern Sicily; tower steel as scrap, no ferry needed."},
+    {"id": "R18", "demand_source": "Material marketplace", "name": "Reclaimed-steel dealer (Catania)", "kind": "marketplace", "country": "IT", "lat": 37.47, "lon": 14.99, "item": "steel", "tier": 1, "stage": "contracted", "quantity_min": 1, "quantity_max": 60, "needed_by": null, "min_grade": "B", "avoided_co2_per_t": 1.0, "description": "Buys intact tower sections, stores them and resells them for reuse in construction; end use not yet known.", "precedent": {"label": "Opalis: reclaimed building-material dealers", "url": "https://opalis.eu/en"}},
+    {"id": "R19", "demand_source": "Public tender", "name": "ANAS culvert and underpass programme (Sicily)", "kind": "construction", "country": "IT", "lat": 37.56, "lon": 14.02, "item": "steel", "tier": 1, "stage": "announced", "quantity_min": 12, "quantity_max": 60, "needed_by": 2034, "min_grade": "B", "diameter_min": 3.5, "diameter_max": 4.5, "approval_months": 12, "avoided_co2_per_t": 1.5, "description": "Road-authority programme; tower sections reused whole as culverts and wildlife underpasses."},
+    {"id": "R20", "demand_source": "Private developer", "name": "Agri-cooperative storage halls (Enna)", "kind": "construction", "country": "IT", "lat": 37.57, "lon": 14.28, "item": "steel", "tier": 1, "stage": "call_open", "quantity_min": 6, "quantity_max": 30, "needed_by": 2033, "min_grade": "B", "diameter_min": 3.0, "diameter_max": 4.5, "approval_months": 9, "avoided_co2_per_t": 1.5, "description": "Farm cooperatives building storage halls with reclaimed tower sections as columns."},
+    {"id": "R21", "demand_source": "Operator network", "name": "Alpiq Sicily spare-parts pool", "kind": "wind_farm", "country": "IT", "lat": 37.58, "lon": 13.55, "item": "electrical", "tier": 1, "stage": "contracted", "quantity_min": 1, "quantity_max": 12, "needed_by": 2040, "min_grade": "B", "models": ["G8X", "G90", "ECO 80", "2.05 MW"], "avoided_co2_per_t": 3.0, "description": "Shared spares for Alpiq's own Sicilian farms; keeps the remaining turbines running until they retire."},
+    {"id": "R22", "demand_source": "Industrial offtake", "name": "Electrical recycler (Catania)", "kind": "recycler", "country": "IT", "lat": 37.45, "lon": 15.06, "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 1000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo recycler for copper, electrical steel and electronics in Sicily."},
+    {"id": "R23", "demand_source": "Industrial offtake", "name": "Cement kiln (Ragusa)", "kind": "coprocessing", "country": "IT", "lat": 36.93, "lon": 14.73, "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 3000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 0.11, "description": "Pseudo Sicilian cement kiln co-processing blades (0.11 t CO2 saved per t, WindEurope)."},
+    {"id": "R24", "demand_source": "Industrial offtake", "name": "Composite recycling pilot (Brindisi)", "kind": "recycler", "country": "IT", "lat": 40.63, "lon": 17.94, "item": "blade", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 400, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 0.2, "description": "Pseudo southern-Italian recycling pilot; takes whole or cut blades."},
+    {"id": "R25", "demand_source": "Research", "name": "Blade test lab, University of Catania", "kind": "research", "country": "IT", "lat": 37.53, "lon": 15.07, "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 1, "quantity_max": 4, "needed_by": 2032, "min_grade": "C", "needs_whole_blade": true, "avoided_co2_per_t": 0.3, "description": "Research lab testing aged blades (fatigue, repair methods); damaged blades are useful here."},
+    {"id": "R26", "demand_source": "Municipal programme", "name": "Agrigento seafront benches and shade", "kind": "street_furniture", "country": "IT", "lat": 37.28, "lon": 13.58, "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 3, "quantity_max": 15, "needed_by": 2031, "min_grade": "C", "avoided_co2_per_t": 0.5, "description": "Municipal call for benches and shade structures from blade segments.", "precedent": {"label": "Wikado playground, Rotterdam (Superuse)", "url": "https://www.superuse-studios.com/?p=52109"}},
+    {"id": "R27", "demand_source": "Public tender", "name": "ViaRhôna cycle-route footbridge (Drôme)", "kind": "infrastructure", "country": "FR", "lat": 44.75, "lon": 4.8, "item": "blade", "tier": 2, "stage": "selected", "quantity_min": 2, "quantity_max": 2, "needed_by": 2033, "min_grade": "B", "length_min": 30, "length_max": 40, "needs_whole_blade": true, "approval_months": 18, "avoided_co2_per_t": 1.0, "description": "Footbridge on the Rhône cycle route; two whole blades as girders.", "precedent": {"label": "Re-Wind BladeBridge, Midleton greenway (Cork)", "url": "https://www.designboom.com/architecture/repurposed-wind-turbine-blades-bladebridge-ireland-02-15-2022/"}},
+    {"id": "R28", "demand_source": "Private developer", "name": "Avignon freight-hub canopy", "kind": "construction", "country": "FR", "lat": 43.93, "lon": 4.85, "item": "steel", "tier": 1, "stage": "announced", "quantity_min": 4, "quantity_max": 18, "needed_by": 2034, "min_grade": "B", "diameter_min": 3.0, "diameter_max": 4.2, "approval_months": 12, "avoided_co2_per_t": 1.5, "description": "Logistics canopy using reclaimed tower sections as columns."},
+    {"id": "R29", "demand_source": "Industrial offtake", "name": "Cement kiln (Occitanie)", "kind": "coprocessing", "country": "FR", "lat": 43.2, "lon": 2.9, "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 2000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 0.11, "description": "Pseudo French cement kiln co-processing blades."},
+    {"id": "R30", "demand_source": "Material marketplace", "name": "Reclaimed-steel dealer (Lyon)", "kind": "marketplace", "country": "FR", "lat": 45.72, "lon": 4.92, "item": "steel", "tier": 1, "stage": "contracted", "quantity_min": 1, "quantity_max": 40, "needed_by": null, "min_grade": "B", "avoided_co2_per_t": 1.0, "description": "Stores and resells intact steel elements for reuse.", "precedent": {"label": "Opalis: reclaimed building-material dealers", "url": "https://opalis.eu/en"}},
+    {"id": "R31", "demand_source": "Operator network", "name": "Used-turbine dealer (Rhône)", "kind": "wind_farm", "country": "FR", "lat": 44.95, "lon": 4.9, "item": "electrical", "tier": 1, "stage": "selected", "quantity_min": 1, "quantity_max": 10, "needed_by": 2036, "min_grade": "B", "models": ["V66", "E-70", "E-82"], "avoided_co2_per_t": 3.0, "description": "Refurbishes and resells drivetrains of legacy Vestas and Enercon turbines."},
+    {"id": "R32", "demand_source": "Industrial offtake", "name": "Electrical recycler (Marseille)", "kind": "recycler", "country": "FR", "lat": 43.35, "lon": 5.35, "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 1000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo recycler for copper and electronics."},
+    {"id": "R33", "demand_source": "Industrial offtake", "name": "Steel works (Solothurn)", "kind": "factory", "country": "CH", "lat": 47.17, "lon": 7.57, "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 3000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo Swiss electric-arc steel works taking tower steel as scrap."},
+    {"id": "R34", "demand_source": "Municipal programme", "name": "Delémont cycle shelters", "kind": "street_furniture", "country": "CH", "lat": 47.36, "lon": 7.34, "item": "blade", "tier": 2, "stage": "call_open", "quantity_min": 3, "quantity_max": 9, "needed_by": 2037, "min_grade": "B", "avoided_co2_per_t": 0.5, "description": "Town programme for covered bike parking from blade segments."},
+    {"id": "R35", "demand_source": "Private developer", "name": "Jura farm silo programme", "kind": "construction", "country": "CH", "lat": 47.3, "lon": 7.1, "item": "steel", "tier": 1, "stage": "announced", "quantity_min": 3, "quantity_max": 9, "needed_by": 2037, "min_grade": "B", "diameter_min": 4.0, "diameter_max": 4.5, "approval_months": 9, "avoided_co2_per_t": 1.5, "description": "Farmers reusing tower sections as silos and water tanks."},
+    {"id": "R36", "demand_source": "Industrial offtake", "name": "Electrical recycler (Basel)", "kind": "recycler", "country": "CH", "lat": 47.54, "lon": 7.6, "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 500, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo Swiss recycler for copper and electronics."},
+    {"id": "R37", "demand_source": "Industrial offtake", "name": "Cement kiln (Skövde)", "kind": "coprocessing", "country": "SE", "lat": 58.39, "lon": 13.85, "item": "blade", "tier": 4, "stage": "contracted", "quantity_min": 1, "quantity_max": 2000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 0.11, "description": "Pseudo Swedish cement kiln co-processing blades."},
+    {"id": "R38", "demand_source": "Industrial offtake", "name": "Steel works (Smedjebacken)", "kind": "factory", "country": "SE", "lat": 60.14, "lon": 15.41, "item": "steel", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 3000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.0, "description": "Pseudo Swedish steel works."},
+    {"id": "R39", "demand_source": "Industrial offtake", "name": "Electrical recycler (Gothenburg)", "kind": "recycler", "country": "SE", "lat": 57.71, "lon": 11.97, "item": "electrical", "tier": 3, "stage": "contracted", "quantity_min": 1, "quantity_max": 1000, "needed_by": null, "min_grade": "C", "avoided_co2_per_t": 1.2, "description": "Pseudo recycler for copper and electronics."}
   ],
 
   "params": {
@@ -214,6 +264,7 @@
     "permit_eur_per_country": 300,
     "certainty": { "announced": 0.3, "call_open": 0.5, "selected": 0.8, "contracted": 1.0 },
     "fr_rotor_quota": 0.35,
+    "max_km": { "blade": 1000, "blade_segmented": 1800, "steel": 800, "electrical": 1200 },
     "embodied_mj_per_kg": { "blade": 70, "steel": 25, "electrical": 60 },
     "embodied_retention": {
       "blade": [0.9, 0.7, 0.15, 0.03],

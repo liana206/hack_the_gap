@@ -3,8 +3,10 @@
 // Rules and their sources: docs/reuse-rules-and-data.md
 
 import type { Badge, Ctx, Exclusion, Farm, Grade, Hub, Leg, Lot, Receiver, Route } from './types.ts'
+import { firstRetire } from './turbines.ts'
 
 const GRADE: Record<Grade, number> = { A: 3, B: 2, C: 1 }
+const TIER_NAME: Record<number, string> = { 3: 'recycling', 4: 'recovery' }
 
 export function haversineKm(a: [number, number], b: [number, number]): number {
   const rad = Math.PI / 180
@@ -20,13 +22,16 @@ const leg = (from: [number, number], to: [number, number], roadFactor: number): 
   km: Math.round(haversineKm(from, to) * roadFactor),
 })
 
-export const isFlagged = (farm: Farm, year: number, windowYears: number) => year >= farm.end_of_life - windowYears
+// A farm is flagged once its first turbine enters the planning window.
+export const isFlagged = (farm: Farm, year: number, windowYears: number) => year >= firstRetire(farm) - windowYears
+
+export const availableYear = (farm: Farm, lot: Lot) => lot.available_year ?? farm.end_of_life
 
 // Every reason a receiver cannot take this lot. Empty list = valid.
 function exclusionReasons(farm: Farm, lot: Lot, r: Receiver, ctx: Ctx): Omit<Exclusion, 'receiver'>[] {
   const p = ctx.data.params
   const out: Omit<Exclusion, 'receiver'>[] = []
-  const available = farm.end_of_life
+  const available = availableYear(farm, lot)
   const spec = (reason: string) => out.push({ reason, source: 'spec' })
 
   if (r.deadline !== undefined && r.deadline < ctx.year) spec(`Call closed in ${r.deadline}`)
@@ -45,7 +50,7 @@ function exclusionReasons(farm: Farm, lot: Lot, r: Receiver, ctx: Ctx): Omit<Exc
     spec(`Passport ${lot.passport_pct}% < ${r.min_passport_pct}% required`)
   if (r.needs_geometry_model && !lot.has_geometry_model) spec('Needs a 3D blade model in the passport')
   if (lot.item === 'blade' && ctx.segmented && r.needs_whole_blade) spec('Needs whole blades; lot is set to segmented')
-  if (r.quantity_min > lot.quantity) spec(`Needs at least ${r.quantity_min} units, lot has ${lot.quantity}`)
+  if (!lot.pooled && r.quantity_min > lot.quantity) spec(`Needs at least ${r.quantity_min} units, lot has ${lot.quantity}`)
 
   if (r.approval_months !== undefined && r.needed_by !== null && (r.needed_by - ctx.year) * 12 < r.approval_months)
     out.push({
@@ -155,9 +160,47 @@ export function rankLot(farm: Farm, lot: Lot, ctx: Ctx): { routes: Route[]; excl
   const w = ctx.weights
   const wSum = w.timing + w.condition + w.co2 + w.cost + w.certainty
 
+  // Life-cycle and distance limits (WFD Art. 4(2) allows leaving the hierarchy when the life cycle is worse).
+  // Fallbacks (certain recycling/recovery) are exempt, so every lot keeps a route.
+  const maxKm = lot.item === 'blade' ? (ctx.segmented ? p.max_km.blade_segmented : p.max_km.blade) : p.max_km[lot.item]
+  for (let i = draft.length - 1; i >= 0; i--) {
+    const d = draft[i]
+    const km = d.leg1.km + d.leg2.km
+    const fallback = d.receiver.tier >= 3 && d.receiver.stage === 'contracted'
+    if (fallback) {
+      if (km > maxKm) d.badges.push({ text: `Long haul: ${km} km (fallback)`, source: 'assumption' })
+      if (d.co2_per_unit_t > d.avoided_per_unit_t) d.badges.push({ text: 'Transport emits more CO₂ than it saves', source: 'assumption' })
+      continue
+    }
+    const reason =
+      km > maxKm
+        ? `Too far: ${km} km > ${maxKm} km limit for ${lot.item === 'blade' ? (ctx.segmented ? 'segmented blades' : 'whole blades') : lot.item}`
+        : d.co2_per_unit_t > d.avoided_per_unit_t
+          ? `Transport emits ${d.co2_per_unit_t.toFixed(1)} t CO₂ per unit, more than the ${d.avoided_per_unit_t.toFixed(1)} t it saves (life-cycle exception, WFD Art. 4(2))`
+          : null
+    if (reason) {
+      excluded.push({ receiver: d.receiver, reason, source: 'policy' })
+      draft.splice(i, 1)
+    }
+  }
+
+  // Of the fallbacks in each tier, keep those within the distance limit, or else only the nearest one.
+  for (const tier of [3, 4]) {
+    const fb = draft
+      .filter((d) => d.receiver.tier === tier && d.receiver.stage === 'contracted')
+      .sort((a, b) => a.leg1.km + a.leg2.km - (b.leg1.km + b.leg2.km))
+    const near = fb.filter((d) => d.leg1.km + d.leg2.km <= maxKm)
+    const keep = new Set(near.length ? near : fb.slice(0, 1))
+    for (const d of fb) {
+      if (keep.has(d)) continue
+      excluded.push({ receiver: d.receiver, reason: `Closer ${TIER_NAME[tier]} option: ${fb[0].receiver.name} (${fb[0].leg1.km + fb[0].leg2.km} km)`, source: 'policy' })
+      draft.splice(draft.indexOf(d), 1)
+    }
+  }
+
   const routes: Route[] = draft.map((d) => {
     const r = d.receiver
-    const slack = r.needed_by === null ? 0 : Math.max(0, r.needed_by - farm.end_of_life)
+    const slack = r.needed_by === null ? 0 : Math.max(0, r.needed_by - availableYear(farm, lot))
     let timing = 1 - Math.min(slack, 5) / 5
     if (d.notification) timing = Math.max(0, timing - p.notification_months / 24)
     const fits = {

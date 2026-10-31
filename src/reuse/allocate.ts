@@ -13,7 +13,8 @@ export function allocateLot(lot: Lot, routes: Route[], ctx: Ctx): Allocation {
   const lines: Allocation['lines'] = []
   for (const route of routes) {
     if (remaining <= 0) break
-    if (remaining < route.receiver.quantity_min) continue
+    // A pooled (single-turbine) lot adds to a larger programme, so the receiver's minimum doesn't apply.
+    if (!lot.pooled && remaining < route.receiver.quantity_min) continue
     const units = Math.min(remaining, route.receiver.quantity_max)
     lines.push({ route, units })
     remaining -= units

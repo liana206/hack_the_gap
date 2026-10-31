@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Check, Ctx, Dataset, PlanId } from './types.ts'
 import { rankLot } from './match.ts'
 import { buildPlans, checkPlan, explainPlan } from './allocate.ts'
-import { entities, parseHash, toHash, type ViewState } from './ui.ts'
-import FarmList, { YEAR_MIN } from './FarmList.tsx'
+import { entities, parseHash, readGymLog, toHash, type ViewState } from './ui.ts'
+import { findLot, turbineByCase } from './turbines.ts'
+import FarmList, { YEAR_MAX, YEAR_MIN } from './FarmList.tsx'
 import ReuseMap from './ReuseMap.tsx'
 import MapCard from './MapCard.tsx'
 import PlanPanel, { NO_SIGNOFF, type LotView, type SignOff } from './PlanPanel.tsx'
@@ -24,6 +25,7 @@ export default function ReuseApp() {
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<ViewState>(() => parseHash(location.hash, YEAR_MIN))
   const [signoffs, setSignoffs] = useState<Record<string, SignOff>>(loadSignoffs)
+  const [gymLog] = useState(readGymLog) // re-read whenever week 4 opens
 
   useEffect(() => {
     fetch('/reuse/dataset.json')
@@ -54,14 +56,25 @@ export default function ReuseApp() {
   }, [signoffs])
 
   const patch = useCallback((p: Partial<ViewState>) => setView((v) => ({ ...v, ...p })), [])
+
+  // Arriving from a Week 1–2 report (#/map?case=...): open that turbine in its retire year.
+  useEffect(() => {
+    if (!data || !view.gymCase) return
+    const t = turbineByCase(data, view.gymCase)
+    patch(
+      t
+        ? { lotId: t.lots[0].id, year: Math.min(YEAR_MAX, Math.max(YEAR_MIN, t.retire_year)), plan: 'recommended', card: { kind: 'entity', id: t.farm.id }, gymCase: null }
+        : { gymCase: null },
+    )
+  }, [data, view.gymCase, patch])
   const ents = useMemo(() => (data ? entities(data, view.year) : []), [data, view.year])
 
   // Everything for the selected lot derives from the view; nothing is cached.
   const sel = useMemo(() => {
     if (!data || !view.lotId) return null
-    const farm = data.farms.find((f) => f.lots.some((l) => l.id === view.lotId))
-    const lot = farm?.lots.find((l) => l.id === view.lotId)
-    if (!farm || !lot) return null
+    const found = findLot(data, view.lotId)
+    if (!found) return null
+    const { farm, lot, turbine } = found
     const ctx: Ctx = { data, year: view.year, segmented: view.seg, weights: view.w }
     const { routes, excluded } = rankLot(farm, lot, ctx)
     const plans = buildPlans(lot, routes, ctx)
@@ -69,14 +82,15 @@ export default function ReuseApp() {
     const checks = Object.fromEntries(plans.map((p) => [p.id, checkPlan(farm, lot, p.allocation, ctx, signoff.coOwner)])) as Record<PlanId, Check[]>
     const plan = plans.find((p) => p.id === view.plan)!
     const lotView: LotView = {
-      farm, lot, plans, checks, signoff,
+      farm, lot, plans, checks, signoff, turbine,
+      gym: turbine?.gym_case ? (gymLog[turbine.gym_case] ?? null) : null,
       why: explainPlan(plans[0], plans, excluded, lot),
       excludedCount: excluded.length,
       fingerprint: `${plan.id}|${view.seg ? 'seg' : 'whole'}|${plan.allocation.lines.map((l) => `${l.route.receiver.id}:${l.units}`).join(',')}`,
     }
     const involved = new Set<string>([farm.id, ...routes.map((r) => r.receiver.id), ...routes.map((r) => r.hub.id)])
     return { lotView, routes, excluded, plan, involved }
-  }, [data, view, signoffs])
+  }, [data, view, signoffs, gymLog])
 
   const onMarker = useCallback((id: string) => patch({ card: { kind: 'entity', id } }), [patch])
   const onLegend = useCallback((key: string) => patch({ card: { kind: 'legend', key } }), [patch])
@@ -107,6 +121,7 @@ export default function ReuseApp() {
             year={view.year}
             lotId={view.lotId}
             signed={signed}
+            gymLog={gymLog}
             onYear={(year) => patch({ year })}
             onFarm={(id) => patch({ card: { kind: 'entity', id } })}
             onLot={(lotId) => patch({ lotId, plan: 'recommended', card: null })}

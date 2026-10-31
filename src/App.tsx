@@ -22,14 +22,28 @@ const loadLog = (): LogEntry[] => {
 }
 
 export default function App() {
-  // A reuse-map link (#/map?...) opens week 4 directly.
-  const [weekN, setWeekN] = useState(() => (/^#\/map/.test(location.hash) ? 4 : 1))
+  // Links between weeks: #/map?... opens the week 4 reuse map, #/case/<id> opens that case in week 2.
+  const [weekN, setWeekN] = useState(() => (/^#\/map/.test(location.hash) ? 4 : /^#\/case\//.test(location.hash) ? 2 : 1))
   const [index, setIndex] = useState<ScenarioIndexEntry[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(() => location.hash.match(/^#\/case\/([\w-]+)/)?.[1] ?? null)
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [log, setLog] = useState<LogEntry[]>(loadLog)
   const [played, setPlayed] = useState<{ decision: Answer; reason: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const onHash = () => {
+      if (/^#\/map/.test(location.hash)) setWeekN(4)
+      const c = location.hash.match(/^#\/case\/([\w-]+)/)?.[1]
+      if (c) {
+        setWeekN(2)
+        setSelectedId(c)
+        window.scrollTo({ top: 0 })
+      }
+    }
+    addEventListener('hashchange', onHash)
+    return () => removeEventListener('hashchange', onHash)
+  }, [])
 
   const week = WEEKS.find((w) => w.n === weekN)!
   const cases = index.filter((c) => c.week <= weekN)

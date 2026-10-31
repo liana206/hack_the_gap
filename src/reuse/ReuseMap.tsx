@@ -49,6 +49,7 @@ export default function ReuseMap({ ents, involved, selected, routes, allocation,
       .addTo(m)
     layer.current = L.layerGroup().addTo(m)
     map.current = m
+    lastFit.current = '' // a fresh map (also after a StrictMode remount) needs its view fitted again
     return () => void m.remove()
   }, [])
 
@@ -92,7 +93,10 @@ export default function ReuseMap({ ents, involved, selected, routes, allocation,
     if (fitKey !== lastFit.current) {
       lastFit.current = fitKey
       const pts = ents.filter((e) => involved === null || involved.has(e.id)).map((e) => [e.lat, e.lon] as [number, number])
-      if (pts.length) m.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 7 })
+      if (pts.length) {
+        m.invalidateSize() // the grid may have resized the map since it was created
+        m.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 7, animate: false })
+      }
     }
   }, [ents, involved, selected, routes, allocation, fitKey, onMarker])
 
