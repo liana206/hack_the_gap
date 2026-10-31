@@ -24,7 +24,7 @@ export const WEEKS: Week[] = [
   {
     n: 1,
     title: 'Read the signals',
-    description: 'Decide on four turbines, then a friendly senior explains what mattered.',
+    description: 'Decide on six turbines, then a friendly senior explains what mattered.',
     ready: true,
     seniorStyle: 'coach',
     features: none,

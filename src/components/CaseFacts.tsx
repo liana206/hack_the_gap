@@ -38,7 +38,7 @@ export default function CaseFacts({ s }: { s: Scenario }) {
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
             <div className={`h-full rounded-full ${pastLife ? 'bg-slate-700' : 'bg-accent'}`} style={{ width: `${lifePct}%` }} />
           </div>
-          {pastLife && <div className="mt-1 text-xs text-slate-500">{T.age_years - T.design_life_years} years past design life</div>}
+          {pastLife && <div className="mt-1 text-xs text-slate-500">{T.age_years - T.design_life_years} {T.age_years - T.design_life_years === 1 ? 'year' : 'years'} past design life</div>}
         </Fact>
         <Fact label="Maintenance / repair">
           <div className="text-lg font-semibold text-slate-800">{eur(s.costs.maintenance_eur)}</div>

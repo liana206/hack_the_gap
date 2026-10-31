@@ -78,7 +78,7 @@ export function buildSystemPrompt(
     'Rules: plain language, no markdown headings, max 120 words.',
     'First reply: (1) was the call right, (2) the ONE signal in the data that mattered most, (3) one rule of thumb.',
     'Follow-up replies: answer the question briefly, refer to the facts below, do not invent numbers.',
-    'The "expected" temperature comes from a normal-behaviour model: 32 + 0.011 * power_kw + 0.85 * outside temperature.',
+    'The "expected" temperature comes from a normal-behaviour model: 32 + 0.011 * power_kw + 0.85 * outside temperature + 0.25 * age_years.',
     '',
     'CASE FACTS (computed from the data the junior saw):',
     summarizeHistory(s),

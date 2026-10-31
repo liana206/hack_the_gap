@@ -2,21 +2,43 @@
   {
     "id": "w1-healthy",
     "week": 1,
-    "title": "T07 - routine check"
+    "title": "T07 - routine check",
+    "turbine": "T07",
+    "age_years": 6
   },
   {
     "id": "w1-gearbox",
     "week": 1,
-    "title": "T03 - gearbox running warm"
+    "title": "T03 - gearbox running warm",
+    "turbine": "T03",
+    "age_years": 9
   },
   {
     "id": "w1-heatwave",
     "week": 1,
-    "title": "T11 - heatwave warning"
+    "title": "T11 - heatwave warning",
+    "turbine": "T11",
+    "age_years": 8
+  },
+  {
+    "id": "w1-old-healthy",
+    "week": 1,
+    "title": "T02 - old and warm",
+    "turbine": "T02",
+    "age_years": 21
+  },
+  {
+    "id": "w1-warranty-generator",
+    "week": 1,
+    "title": "T09 - young turbine, fast fault",
+    "turbine": "T09",
+    "age_years": 3
   },
   {
     "id": "w1-old-generator",
     "week": 1,
-    "title": "T01 - old generator"
+    "title": "T01 - old generator",
+    "turbine": "T01",
+    "age_years": 23
   }
 ]
