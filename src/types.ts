@@ -64,6 +64,8 @@ export interface Debate {
   said: string // everything the junior replied
   rounds: number
   open: string[] // Sandra's arguments still unanswered when the junior locked in
+  missing: string[] // evidence (checklist labels) the junior never brought up, in the reason or the replies
+  satisfied: boolean // the junior ended the debate themselves, before Sandra ran out of objections
   checked: boolean // false if Gemini was unavailable, so the replies were not checked
 }
 

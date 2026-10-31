@@ -23,16 +23,19 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
   const [answered, setAnswered] = useState<number[]>([])
   const [covered, setCovered] = useState<string[]>([]) // evidence Gemini recognised in other wording
   const [unchecked, setUnchecked] = useState<string | null>(null) // why Gemini could not check the replies
+  const [satisfied, setSatisfied] = useState(false) // the junior stands by their case: what is left open shows after the reveal
 
   const replies = messages.filter((m) => m.role === 'user').map((m) => m.content)
   // Tracked here but never shown: the junior has to find the arguments alone.
   const missingIn = (said: string[]) =>
     gradeReasoning([reason, ...said].join(' ')).checks.filter((c) => !c.hit && !covered.includes(c.label)).map((c) => c.label)
-  const evidenceMissing = missingIn(replies).length > 0
+  const missing = missingIn(replies)
+  const evidenceMissing = missing.length > 0
   const against = call !== stance
   const open = against ? points.map((text, i) => ({ i, text })).filter((p) => !answered.includes(p.i)) : []
   const capped = replies.length >= MAX_ROUNDS
-  const done = (open.length === 0 && !evidenceMissing) || capped || unchecked !== null
+  const convinced = open.length === 0 && !evidenceMissing
+  const done = convinced || capped || unchecked !== null || satisfied
 
   async function send() {
     const said = input.trim()
@@ -97,9 +100,19 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
             placeholder="Answer her, using the data…"
             className="flex-1 rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
-          <button onClick={send} disabled={busy || !input.trim()} className="rounded-xl bg-navy px-4 text-sm font-semibold text-white hover:bg-navy-2 disabled:opacity-40">
-            Reply
-          </button>
+          <div className="flex flex-col gap-2">
+            <button onClick={send} disabled={busy || !input.trim()} className="flex-1 rounded-xl bg-navy px-4 text-sm font-semibold text-white hover:bg-navy-2 disabled:opacity-40">
+              Reply
+            </button>
+            <button
+              onClick={() => setSatisfied(true)}
+              disabled={busy}
+              title="End the debate and stand by what you have said so far. What you left open is shown after the reveal."
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+            >
+              I'm satisfied with my case
+            </button>
+          </div>
         </div>
       )}
 
@@ -128,14 +141,25 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
           {unchecked
             ? `Offline: your replies cannot be checked (${unchecked}). You can lock in.`
             : !done
-              ? `Sandra is not convinced yet: keep making your case (reply ${replies.length} of ${MAX_ROUNDS}).`
-              : open.length || evidenceMissing
-                ? 'Debate over: you used all your replies, and Sandra is still not convinced.'
-                : 'Sandra has no more objections. Lock in when you are ready.'}
+              ? `Sandra is not convinced yet: keep making your case (reply ${replies.length} of ${MAX_ROUNDS}), or end the debate if you are satisfied.`
+              : convinced
+                ? 'Sandra has no more objections. Lock in when you are ready.'
+                : satisfied
+                  ? 'You ended the debate and stand by your case. What you left open is shown after the reveal.'
+                  : 'Debate over: you used all your replies, and Sandra is still not convinced.'}
         </span>
         <button
           disabled={!done || busy}
-          onClick={() => onFinal(call, { said: replies.join(' / '), rounds: replies.length, open: open.map((p) => p.text), checked: unchecked === null })}
+          onClick={() =>
+            onFinal(call, {
+              said: replies.join(' / '),
+              rounds: replies.length,
+              open: open.map((p) => p.text),
+              missing,
+              satisfied: satisfied && !convinced,
+              checked: unchecked === null,
+            })
+          }
           className="shrink-0 rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Lock in final call & reveal

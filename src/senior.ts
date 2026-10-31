@@ -123,6 +123,8 @@ export function buildSystemPrompt(
             ? `In the debate the junior replied: "${debate.said}". In your first reply, say whether this names the real flaw or weakness in your argument, or whether it misses it or cites no evidence. Being right about the call does not make the argument good.`
             : 'The junior did not reply to your argument.',
           debate?.open.length ? `Arguments of yours they never answered: ${debate.open.join('; ')}.` : '',
+          debate?.satisfied ? 'The junior ended the debate themselves and stood by their case before answering everything. That is allowed: do not criticise them for stopping, only name what was left open.' : '',
+          debate?.missing.length ? `Evidence they never brought up, in their reason or the debate: ${debate.missing.join(', ')}.` : '',
         ].join('\n')
       : ''
   return [

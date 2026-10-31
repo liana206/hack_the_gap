@@ -16,6 +16,7 @@ const TOTAL_MS = 40000
 function geminiProxy(env: Record<string, string>): Plugin {
   const key = env.GEMINI_API_KEY
   const model = env.GEMINI_MODEL || 'gemini-3.8-flash'
+  let lastGood: string | undefined // chat replies start with the model that answered last time
 
   async function handle(req: IncomingMessage, res: ServerResponse) {
     const send = (status: number, body: object) => {
@@ -40,7 +41,9 @@ function geminiProxy(env: Record<string, string>): Plugin {
       })
       const deadline = Date.now() + TOTAL_MS // never let slow models hang the demo
       let lastError = 'no model answered'
-      for (const m of new Set(json ? [JSON_MODEL, 'gemini-3.5-flash', model, ...FALLBACK_MODELS] : [model, ...FALLBACK_MODELS])) {
+      // Debate turns keep their fixed order: a fallback that answered once may still judge the verdicts badly.
+      const order = json ? [JSON_MODEL, 'gemini-3.5-flash', model, ...FALLBACK_MODELS] : [lastGood ?? model, model, ...FALLBACK_MODELS]
+      for (const m of new Set(order)) {
         const left = deadline - Date.now()
         if (left <= 0) break
         try {
@@ -53,6 +56,7 @@ function geminiProxy(env: Record<string, string>): Plugin {
           const data = await r.json()
           if (r.ok) {
             console.log(`[gemini] answered by ${m}`)
+            if (!json) lastGood = m
             const text = (data.candidates?.[0]?.content?.parts ?? [])
               .map((p: { text?: string }) => p.text ?? '')
               .join('')

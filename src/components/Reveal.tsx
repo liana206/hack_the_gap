@@ -41,16 +41,27 @@ export default function Reveal({ s, decision, reason, firstDecision, debate }: P
             {correct ? (trap ? 'You caught the wrong AI.' : 'You judged her advice correctly.') : trap ? 'The wrong AI got through.' : 'You rejected good advice.'}
           </div>
           <p className="mt-2 italic text-slate-500">Sandra: “{s.challenge!.text}”</p>
-          {debate && debate.rounds > 0 && (
-            <p className="mt-2 text-slate-600">
-              Debate: {debate.rounds} {debate.rounds === 1 ? 'reply' : 'replies'}.{' '}
-              {!debate.checked
-                ? 'Gemini was unavailable, so your replies were not checked.'
-                : debate.open.length
-                  ? `Still unanswered: ${debate.open.join('; ')}.`
-                  : 'No argument of hers was left open.'}{' '}
-              This is feedback and does not change your score.
-            </p>
+          {debate && (debate.rounds > 0 || debate.satisfied) && (
+            <div className="mt-2 text-slate-600">
+              <p>
+                Debate: {debate.rounds} {debate.rounds === 1 ? 'reply' : 'replies'}
+                {debate.satisfied && ', then you ended it yourself'}.{' '}
+                {!debate.checked
+                  ? 'Gemini was unavailable, so your replies were not checked.'
+                  : !debate.open.length && 'No argument of hers was left open.'}{' '}
+                This is feedback and does not change your score.
+              </p>
+              {debate.checked && debate.open.length > 0 && (
+                <p className="mt-1.5">
+                  <span className="font-medium text-slate-700">Her arguments you never answered:</span> {debate.open.join('; ')}.
+                </p>
+              )}
+              {debate.missing.length > 0 && (
+                <p className="mt-1.5">
+                  <span className="font-medium text-slate-700">Evidence you never brought up:</span> {debate.missing.join(', ')}.
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}
