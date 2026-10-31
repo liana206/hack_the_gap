@@ -91,13 +91,13 @@ export function buildSystemPrompt(
 }
 
 /** Offline fallback so the demo never breaks: built from the scenario, no LLM. */
-export function offlineFeedback(s: Scenario, decision: Answer): string {
+export function offlineFeedback(s: Scenario, decision: Answer, why = 'no Gemini key set'): string {
   const right = decision === s.truth.answer
   return (
     (right ? 'Good call. ' : `Not quite: the right call was "${label(s.truth.answer)}". `) +
     s.truth.explanation +
     ' Rule of thumb: judge the gap between measured and expected temperature, not the raw temperature.' +
-    '\n\n(Offline mode: no Gemini key set, this is a built-in reply.)'
+    `\n\n(Offline mode: ${why}, this is a built-in reply.)`
   )
 }
 

@@ -12,7 +12,7 @@ export interface Scenario {
   id: string
   week: number
   title: string
-  source: 'synthetic' | 'care'
+  source: 'synthetic' // all cases are hand-designed fake data
   turbine: { name: string; farm: string; age_years: number; design_life_years: number; rated_kw: number }
   component: string
   decision_date: string

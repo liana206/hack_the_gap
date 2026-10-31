@@ -88,7 +88,7 @@ def decision_date(start):
 
 
 def turbine(name, age):
-    return {"name": name, "farm": "Wind Farm A (synthetic)", "age_years": age,
+    return {"name": name, "farm": "Training Farm (synthetic)", "age_years": age,
             "design_life_years": 20, "rated_kw": RATED_KW}
 
 

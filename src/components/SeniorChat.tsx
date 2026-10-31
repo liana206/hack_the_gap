@@ -36,7 +36,13 @@ export default function SeniorChat({ week, s, decision, reason }: Props) {
         setMessages([...history, { role: 'assistant', content: text }])
       }
     } catch (e) {
-      setMessages([...history, { role: 'assistant', content: `⚠️ Could not reach the senior: ${(e as Error).message}` }])
+      // Gemini down or overloaded: the first feedback still works from the scenario, follow-ups can be retried.
+      const msg = (e as Error).message
+      const reply =
+        history.length === 1
+          ? offlineFeedback(s, decision, `Gemini unavailable: ${msg}`)
+          : `⚠️ Could not reach the senior (${msg}). Try asking again in a moment.`
+      setMessages([...history, { role: 'assistant', content: reply }])
     } finally {
       setBusy(false)
     }

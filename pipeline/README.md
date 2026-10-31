@@ -1,7 +1,7 @@
 # Scenario data pipeline
 
-The app reads plain JSON files from `public/scenarios/`. It never knows whether they are
-mock or real, so **any script that writes this format works without app changes**.
+The app reads plain JSON files from `public/scenarios/`. Any script that writes this format works
+without app changes.
 
 ```
 public/scenarios/index.json        # [{ "id", "week", "title" }, ...]  (list order = case list order)
@@ -10,7 +10,6 @@ public/scenarios/<id>.json         # one file per case, format below
 
 - `make_mock_scenarios.py` – 4 synthetic Week 1 cases (no packages, deterministic). Run from repo root:
   `python3 pipeline/make_mock_scenarios.py`
-- `make_real_scenarios.py` – **TODO (P1)**: same output from the CARE to Compare dataset.
 
 ## Scenario format
 
@@ -19,8 +18,8 @@ public/scenarios/<id>.json         # one file per case, format below
   "id": "w1-gearbox",               // = file name without .json
   "week": 1,                         // case shows up from this week on
   "title": "T03 - gearbox running warm",
-  "source": "synthetic",             // "synthetic" | "care"
-  "turbine": { "name": "T03", "farm": "Wind Farm A", "age_years": 9,
+  "source": "synthetic",             // always "synthetic" (shown as a label in the UI)
+  "turbine": { "name": "T03", "farm": "Training Farm (synthetic)", "age_years": 9,
                "design_life_years": 20, "rated_kw": 2050 },
   "component": "Gearbox bearing (high-speed shaft)",
   "decision_date": "2025-10-26T23:00:00Z",   // = series.t[history_len - 1]
@@ -48,35 +47,29 @@ public/scenarios/<id>.json         # one file per case, format below
 Rules:
 - All `series` arrays have the same length as `t`. Use numbers only (no `null`): fill short gaps
   (forward-fill or interpolate) and pick windows without long outages.
-- Mock uses 21 days visible + 14 days hidden (`history_len` = 504 of 840 points). Real cases may
-  differ, but keep it around 3–6 weeks so charts stay readable.
+- Cases use 21 days visible + 14 days hidden (`history_len` = 504 of 840 points). Other lengths
+  work, but keep it around 3–6 weeks so charts stay readable.
 - The app scores `decision === truth.answer` in code. The LLM never decides correctness.
 - The senior gets a text summary computed from `series` (gap measured vs expected, trend, alarms),
   never the raw arrays.
 
-## Notes for `make_real_scenarios.py` (CARE to Compare, Wind Farm A)
+## Adding a new case
 
-Dataset: CARE to Compare, Zenodo record **14006163**. Wind Farm A = 5 onshore turbines (Portugal,
-EDP open data), 10-minute SCADA, one CSV per event in `Wind Farm A/datasets/<event_id>.csv`,
-plus `Wind Farm A/event_info.csv` and `Wind Farm A/feature_description.csv`.
+All cases are synthetic, designed so each one teaches one lesson. To add one:
 
-Suggested steps (file and column names from memory of the dataset docs: check them against the download):
-1. Read `event_info.csv`: each row is an event with `event_label` (`anomaly` / `normal`),
-   `event_start`, `event_end`, `asset_id` and a text `event_description` (the fault).
-2. Pick events where the fault is a temperature-visible component (gearbox / generator bearing,
-   transformer, hydraulic …). Use `feature_description.csv` to find the matching sensor column
-   (e.g. a gearbox/generator bearing temperature `sensor_XX_avg`), plus power, wind speed and
-   ambient temperature columns.
-3. Resample 10-min → hourly mean. Choose the decision date some days **before** `event_start`
-   for anomaly events (the junior should be able to see early signs), any date for normal events.
-   Visible = window before decision date, hidden = up to ~14 days after.
-4. `component_expected`: fit a simple linear model `temp ~ a + b*power + c*ambient` on the
-   training part of the same turbine (the CSVs have a `train_test` column; use `train`
-   rows with `status_type_id` normal). Write the fitted values for the whole window. The mock
-   uses `32 + 0.011*power_kw + 0.85*ambient_c` as a stand-in.
-5. `truth.answer`: anomaly events → `"maintenance"`; normal events → `"ok"`. `"dismantle"` is
-   a business call (age + repowering plan + costs), so set it by hand in the briefing/costs.
-   `outcome` / `explanation` from `event_description`, written in plain language.
-6. Ages, costs and `cost_if` are not in the dataset: set them by hand (illustrative) and keep
-   `"source": "care"` so the UI labels the case as real data.
-7. Write the files and append entries to `index.json` (use `week` to control when cases appear).
+1. In `make_mock_scenarios.py`, copy a scenario function (e.g. `gearbox()`) and give it a new
+   `id`, `title`, `week` and seed (`random.Random(<new number>)`).
+2. Shape the story with the `build(...)` arguments:
+   - `fault_gap(i)` – extra °C on top of expected at hour `i` (0 = healthy). A slowly growing
+     gap is a developing fault; keep it small in the visible part so it is a real judgement call.
+   - `stop_at` – hour index where the turbine trips (power 0, temperature falls).
+   - `ambient_base`, `ambient_bump(i)`, `wind_mean` – weather (heatwave, calm week, storm …).
+   - Hour `HISTORY_LEN` (= 504) is the decision date; everything after is hidden until the reveal.
+3. Write `briefing`, `alarms`, `costs` and the `truth` (`answer`, `outcome`, `explanation`,
+   `cost_if`). Make sure the cheapest `cost_if` is the right `answer`.
+4. Add the function to the `scenarios` list in `main()` and run
+   `python3 pipeline/make_mock_scenarios.py`. It rewrites all files and `index.json`.
+5. Check the case in the app: is the lesson visible in the history, but not obvious?
+
+Ideas for later weeks: a wrong-AI trap case (week 2), a case where the timing of maintenance
+matters (week 3, add price data), an end-of-life case with part resale values (week 4).

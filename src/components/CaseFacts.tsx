@@ -15,7 +15,7 @@ export default function CaseFacts({ s }: { s: Scenario }) {
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-semibold text-navy">{s.title}</h2>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
-              {s.source === 'care' ? 'Real data · CARE to Compare' : 'Synthetic data'}
+              Synthetic data
             </span>
           </div>
           <p className="mt-1 text-sm text-slate-500">

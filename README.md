@@ -37,4 +37,7 @@ Without `GEMINI_API_KEY` the senior gives a built-in offline reply, so the demo 
 - The junior decides; the senior only speaks after the decision is locked in (week 1).
 - Correctness comes from `truth.answer`, never from the LLM.
 - From week 2, the senior must not receive the truth before the reveal (`buildSystemPrompt(..., revealed=false)`).
-- Week 1 data is synthetic; costs are illustrative, not real Alpiq figures.
+- All data is synthetic: hand-designed cases that follow realistic fault patterns
+  (a bearing fault shows as a growing gap between measured and expected temperature).
+  Costs are illustrative, not real Alpiq figures. We chose this over a real dataset so
+  every case teaches one clear lesson and the outcome is known.

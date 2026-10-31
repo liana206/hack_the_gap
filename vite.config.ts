@@ -7,7 +7,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 // messages: [{role: "user" | "assistant", content: string}]
 function geminiProxy(env: Record<string, string>): Plugin {
   const key = env.GEMINI_API_KEY
-  const model = env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const model = env.GEMINI_MODEL || 'gemini-3.8-flash'
 
   async function handle(req: IncomingMessage, res: ServerResponse) {
     const send = (status: number, body: object) => {
@@ -34,6 +34,7 @@ function geminiProxy(env: Record<string, string>): Plugin {
               parts: [{ text: m.content }],
             })),
           }),
+          signal: AbortSignal.timeout(25000), // never let a slow model hang the demo
         },
       )
       const data = await r.json()
