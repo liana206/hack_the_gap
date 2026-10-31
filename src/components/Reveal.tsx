@@ -1,10 +1,12 @@
 import { ANSWERS, type Answer, type Scenario } from '../types'
+import { gradeReasoning } from '../senior'
 import { eur } from './CaseFacts'
 
 export default function Reveal({ s, decision, reason }: { s: Scenario; decision: Answer; reason: string }) {
   const correct = decision === s.truth.answer
   const best = s.truth.answer
   const title = (a: Answer) => ANSWERS.find((x) => x.id === a)!.title
+  const detail = gradeReasoning(reason)
 
   return (
     <div className="card overflow-hidden">
@@ -31,6 +33,17 @@ export default function Reveal({ s, decision, reason }: { s: Scenario; decision:
             <div>
               <div className="card-title mb-1">Your reasoning</div>
               <p className="rounded-xl bg-slate-50 p-3 text-sm italic text-slate-600">“{reason}”</p>
+              <div className="card-title mb-1 mt-4">
+                Detail grade: <span className="text-navy">{detail.grade}</span> ({detail.points}/{detail.max})
+              </div>
+              <ul className="grid gap-x-4 text-sm sm:grid-cols-2">
+                {detail.checks.map((c) => (
+                  <li key={c.label} className={c.hit ? 'text-emerald-700' : 'text-slate-400'}>
+                    {c.hit ? '✓' : '✗'} {c.label}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-xs text-slate-400">Shows how much evidence you covered, not whether it is right.</p>
             </div>
           )}
         </div>

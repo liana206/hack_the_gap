@@ -65,6 +65,7 @@ export interface LogEntry {
   decision: Answer
   reason: string
   correct: boolean
+  detail?: number // detail grade points for the written reason, if there was one
   time: string // ISO timestamp
 }
 
