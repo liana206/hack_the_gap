@@ -135,6 +135,14 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
   const [hourly, setHourly] = useState(false)
   const hasAlarms = s.alarms.some((a) => isTempAlarm(a.text) && (revealed || a.t <= decisionT))
   const avg = hourly ? '' : ' (24 h avg)'
+  // Evenly spaced y ticks (steps of 10, or 20 for a wide range) around the lines currently shown.
+  const shown = rows.flatMap((r) => (hourly ? [r.temp, r.expected] : [r.tempAvg, r.expectedAvg]))
+  const lo = Math.min(...shown) - 2
+  const hi = Math.max(...shown) + 2
+  const step = hi - lo > 60 ? 20 : 10
+  const yMin = Math.floor(lo / step) * step
+  const yMax = Math.ceil(hi / step) * step
+  const yTicks = Array.from({ length: (yMax - yMin) / step + 1 }, (_, i) => yMin + i * step)
   return (
     <div className="card p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -161,8 +169,8 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
           <CartesianGrid stroke={C.grid} vertical={false} />
           <XAxis dataKey="t" ticks={ticks} tickFormatter={fmtDay} {...axisProps} />
           <YAxis
-            domain={[(min: number) => Math.floor((min - 2) / 10) * 10, (max: number) => Math.ceil((max + 2) / 10) * 10]}
-            tickCount={6}
+            domain={[yMin, yMax]}
+            ticks={yTicks}
             tickFormatter={(v) => `${Math.round(v)}°`}
             {...axisProps}
           />

@@ -231,11 +231,11 @@ def gearbox():
     series = build(rng, start, t["age_years"], ambient_base=12,
                    fault_gap=creep(6, 0.8, 0.01, 2.2), stop_at=fail)
     return {
-        "id": "w1-gearbox", "week": 1, "title": "T03 - gearbox running warm", "source": "synthetic",
+        "id": "w1-gearbox", "week": 1, "title": "T03 - weekly data review", "source": "synthetic",
         "turbine": t, "component": "Gearbox bearing (high-speed shaft)",
         "decision_date": decision_date(start),
-        "briefing": f"{age_label(t)}. It produces normally and has no active alarms. The data team "
-                    f"flagged it in an automatic weekly report. Decide whether to send a maintenance crew.",
+        "briefing": f"{age_label(t)}. It has no active alarms and is on this week's routine data "
+                    f"review list. Decide whether to send a maintenance crew.",
         "alarms": [],
         "costs": c,
         "series": series,
@@ -296,12 +296,12 @@ def old_healthy():
     c = costs(t, 25000, 60000, 40000)
     series = build(rng, start, t["age_years"], ambient_base=16)
     return {
-        "id": "w1-old-healthy", "week": 1, "title": "T02 - old and warm", "source": "synthetic",
+        "id": "w1-old-healthy", "week": 1, "title": "T02 - past design life", "source": "synthetic",
         "turbine": t, "component": "Gearbox bearing",
         "decision_date": decision_date(start),
-        "briefing": f"{age_label(t)}. Its gearbox bearing always runs a few degrees warmer than the "
-                    "newer turbines and it is now past its design life. A colleague suggests "
-                    f"dismantling it before something breaks.",
+        "briefing": f"{age_label(t)}. It is now past its design life. A colleague says its gearbox "
+                    "bearing runs warmer than on the newer turbines and suggests dismantling it "
+                    f"before something breaks.",
         "alarms": [{"t": ts(start, 14 * 24 + 15),
                     "text": "INFO: gearbox bearing temperature above fleet average"}],
         "costs": c,
@@ -328,13 +328,13 @@ def warranty_generator():
     series = build(rng, start, t["age_years"], ambient_base=15,
                    fault_gap=creep(13, 1.5, 0.03, 2.2), stop_at=fail)
     return {
-        "id": "w1-warranty-generator", "week": 1, "title": "T09 - young turbine, fast fault",
+        "id": "w1-warranty-generator", "week": 1, "title": "T09 - generator check under warranty",
         "source": "synthetic",
         "turbine": t, "component": "Generator bearing (non-drive end)",
         "decision_date": decision_date(start),
         "briefing": f"{age_label(t)}. The OEM covers bearing repairs, but only for faults reported "
-                    "before they cause damage. The generator bearing has been getting warmer for a "
-                    f"week. The crew is busy, and it is only a 3-year-old machine.",
+                    "before they cause damage. The control room asks you to check the generator bearing. "
+                    f"The crew is busy, and it is only a 3-year-old machine.",
         "alarms": [{"t": ts(start, 19 * 24 + 3), "text": "WARNING: generator bearing temperature trend high"}],
         "costs": c,
         "series": series,
@@ -357,12 +357,11 @@ def old_generator():
     series = build(rng, start, t["age_years"], ambient_base=6,
                    fault_gap=creep(4, 0.8, 0.005, 2.5), stop_at=HISTORY_LEN + 9 * 24)
     return {
-        "id": "w1-old-generator", "week": 1, "title": "T01 - old generator", "source": "synthetic",
+        "id": "w1-old-generator", "week": 1, "title": "T01 - generator check before repowering", "source": "synthetic",
         "turbine": t, "component": "Generator bearing (drive end)",
         "decision_date": decision_date(start),
-        "briefing": f"{age_label(t)}. It is one of the first turbines of the farm. The generator bearing "
-                    "temperature is rising. Repair quote: 180k EUR (generator overhaul). Dismantling now: "
-                    "60k EUR, and parts can be sold for about 40k EUR.",
+        "briefing": f"{age_label(t)}. It is one of the first turbines of the farm. The control room "
+                    "asks you to check the generator bearing.",
         "alarms": [{"t": ts(start, 18 * 24 + 6), "text": "WARNING: generator bearing temperature trend high"}],
         "costs": c,
         "series": series,

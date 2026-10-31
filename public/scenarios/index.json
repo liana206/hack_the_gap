@@ -9,7 +9,7 @@
   {
     "id": "w1-gearbox",
     "week": 1,
-    "title": "T03 - gearbox running warm",
+    "title": "T03 - weekly data review",
     "turbine": "T03",
     "age_years": 9
   },
@@ -23,21 +23,21 @@
   {
     "id": "w1-old-healthy",
     "week": 1,
-    "title": "T02 - old and warm",
+    "title": "T02 - past design life",
     "turbine": "T02",
     "age_years": 21
   },
   {
     "id": "w1-warranty-generator",
     "week": 1,
-    "title": "T09 - young turbine, fast fault",
+    "title": "T09 - generator check under warranty",
     "turbine": "T09",
     "age_years": 3
   },
   {
     "id": "w1-old-generator",
     "week": 1,
-    "title": "T01 - old generator",
+    "title": "T01 - generator check before repowering",
     "turbine": "T01",
     "age_years": 23
   }
