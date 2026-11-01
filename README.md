@@ -49,14 +49,35 @@ npm run dev                                 # 3. start the app at http://localho
 1. **`npm install`** downloads React, Recharts, Leaflet, Vite and the other packages into `node_modules/`.
    Run it again after every `git pull` that changes `package.json`. Otherwise there will be errors like
    `Failed to resolve import "leaflet"`.
-2. **`cp .env.example .env`** creates a local config file. `.env` is git-ignored, so the key stays
-   on one's local machine.
-   - `GEMINI_API_KEY` is optional. Without it, Sandra gives a built-in offline reply and the demo still works.
-   - `GEMINI_MODEL` sets which Gemini model is tried first.
+2. **`cp .env.example .env`** creates a local config file, `.env`, for the Gemini API key and model.
+   It is git-ignored, so the key stays on your own machine. See
+   [Adding the Gemini API key](#adding-the-gemini-api-key-optional) below.
 3. **`npm run dev`** starts the Vite dev server. It also runs the small `/api/gemini` proxy, which adds
    the key on the server side so it never reaches the browser.
    - The terminal logs which model answered, e.g. `[gemini] answered by …`.
    - Restart it after changing `.env`.
+
+### Adding the Gemini API key (optional)
+
+Sandra, the AI senior, needs a Gemini API key to answer in her own words. Without one, the app
+still works, but she gives short built-in replies instead (marked "offline mode").
+
+1. **Get a key:** go to [Google AI Studio](https://aistudio.google.com/apikey), sign in with a
+   Google account, and click **Create API key**. Copy the key.
+2. **Open the `.env` file** in the project folder. It is created by step 2 above. Its name starts
+   with a dot, so some file browsers hide it; in VS Code it shows in the file list on the left.
+3. **Paste the key** right after `GEMINI_API_KEY=`, with no spaces or quotation marks:
+
+       GEMINI_API_KEY=paste-your-key-here
+       GEMINI_MODEL=gemini-3-flash-preview
+
+   `GEMINI_MODEL` sets which Gemini model is tried first. If it is busy, the app tries other models.
+4. **Save the file and restart the app:** in the terminal running `npm run dev`, press `Ctrl+C`,
+   then run `npm run dev` again.
+5. **Check it works:** decide on a case. If Sandra's reply no longer says "offline mode", the key works.
+
+**Keep the key private.** Do not commit `.env` (it is git-ignored for this reason), and do not
+paste the key into chats, screenshots or slides. Anyone with the key can use your Google quota.
 
 
 ## Structure
