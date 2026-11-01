@@ -1,6 +1,8 @@
 # From Onboarding To Ownership
 
-Hack the Gap 2026 · Alpiq challenge · Track B Judgement Gym · Group: Darkmode Hacker.
+Hack the Gap 2026 
+Track B Judgement Gym 
+Group: Darkmode Hackers
 
 *We don’t give juniors the AI’s job. We give them a path from learning the workflow, to extending the business within it and feel the ownership.*
 
