@@ -90,7 +90,7 @@ Note: the UI calls the 4 steps stages; in the code they are still weeks (`src/we
 - **The debate is feedback only.** It never changes the score. The junior can end it at any time and
   still lock in their own call.
 - **All data is synthetic.**
-  - The cases are hand-designed and follow realistic fault patterns (a bearing fault shows as a growing
+  - The cases follow realistic fault patterns (a bearing fault shows as a growing
     gap between measured and expected temperature). We chose this over a real dataset so every case
     teaches one clear lesson and the outcome is known.
   - Costs are illustrative, not real Alpiq figures.
@@ -118,7 +118,7 @@ Note: the UI calls the 4 steps stages; in the code they are still weeks (`src/we
 
 ## Use of AI in building this project
 
-We used Claude Code (Anthropic) throughout development, for both the backend logic and the UI. It was
+We used Claude Code (Anthropic) throughout development, for both the backend logic, data creation and the UI. It was
 used especially to set up the main skeleton of the app (the stage structure, case format, charts and
 Gemini proxy) and to debug. We reviewed and tested the code. The concept and the design decisions are our own.
 
