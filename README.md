@@ -1,10 +1,9 @@
 # From Onboarding To Ownership
 
-Hack the Gap 2026 · Alpiq challenge · Track B Judgement Gym.
+Hack the Gap 2026 · Alpiq challenge · Track B Judgement Gym · Group: Darkmode Hacker.
+*We don’t give juniors the AI’s job. We give them a path from learning the workflow, to extending the business within it and feel the ownership.**
+Our programme turns AI from a replacement into a mentor. Learning is built into daily decisions: the junior judges each sensor signal before the AI reveals its answer, building instinct from real work. As their track record grows, AI help fades and their agency increases, from reading signals, to making maintenance decisions, to improving the workflow itself. Finally, the junior takes on end-to-end lifecycle management, following each turbine from its first alarm to its second life and developing the circularity business that nobody owned before. The path runs from basic learning to instinct, from decisions to responsibility, and finally to ownership. 
 
-A training simulator in which a junior asset manager makes wind turbine maintenance calls on historical
-SCADA-style data (**nothing wrong / call maintenance / dismantle**), argues with an AI senior who is
-sometimes wrong on purpose, and is then scored **in code against what really happened**.
 
 ## Objective
 
