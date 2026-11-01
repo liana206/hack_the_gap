@@ -97,24 +97,24 @@ export default function ReuseApp() {
 
   const signed = useMemo(() => new Set(Object.entries(signoffs).filter(([, s]) => s.signed).map(([id]) => id)), [signoffs])
 
-  if (error) return <div className="card m-6 border-l-4 border-rose-400 p-4 text-sm text-rose-700">{error}</div>
+  if (error) return <div className="card m-6 border-rose-100 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>
   if (!data) return <div className="card m-6 p-10 text-center text-slate-400">Loading map…</div>
 
   const cardId = view.card?.kind === 'entity' ? view.card.id : null
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-8.5rem)] max-w-[1800px] flex-col px-4 py-3">
+    <div className="mx-auto flex h-[calc(100vh-8.5rem)] max-w-[1900px] flex-col px-8 py-3">
       <div className="mb-2 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <h2 className="text-lg font-semibold text-navy">Reuse Matching Map</h2>
-          <span className="text-sm text-slate-500">Match end-of-life turbine parts with second-life uses, years before dismantling.</span>
+          <h2 className="text-2xl font-extrabold tracking-tight text-navy">Reuse Matching Map</h2>
+          <span className="text-base text-slate-700">Match end-of-life turbine parts with second-life uses, years before dismantling.</span>
         </div>
-        <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] text-amber-800 ring-1 ring-amber-200">
+        <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs text-amber-800">
           Pseudo data · farm specs public, everything else placeholder
         </span>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[280px_minmax(0,1fr)_380px] gap-3">
+      <div className="grid min-h-0 flex-1 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-4">
         <aside className="card min-h-0 overflow-hidden">
           <FarmList
             data={data}

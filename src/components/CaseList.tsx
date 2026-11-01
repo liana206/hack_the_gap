@@ -1,4 +1,5 @@
 import type { LogEntry, ScenarioIndexEntry } from '../types'
+import Mark from './Mark'
 
 interface Props {
   cases: ScenarioIndexEntry[]
@@ -9,7 +10,7 @@ interface Props {
 
 export default function CaseList({ cases, selected, lastResult, onSelect }: Props) {
   return (
-    <ul className="space-y-1.5">
+    <ul className="space-y-1">
       {cases.map((c) => {
         const res = lastResult[c.id]
         const active = c.id === selected
@@ -17,27 +18,28 @@ export default function CaseList({ cases, selected, lastResult, onSelect }: Prop
           <li key={c.id}>
             <button
               onClick={() => onSelect(c.id)}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                active ? 'bg-accent-soft ring-1 ring-accent/40' : 'hover:bg-slate-50'
+              aria-current={active ? 'true' : undefined}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                active ? 'bg-accent text-white' : 'hover:bg-slate-50'
               }`}
             >
               <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold ${
+                className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-base ${
                   !res
-                    ? 'bg-slate-100 text-slate-400'
+                    ? active ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-400'
                     : res.correct
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-rose-100 text-rose-700'
+                      ? active ? 'bg-white text-accent' : 'bg-teal text-white'
+                      : active ? 'bg-white text-rose-700' : 'bg-rose-100 text-rose-700'
                 }`}
                 aria-label={!res ? 'not played' : res.correct ? 'correct' : 'wrong'}
               >
-                {!res ? '·' : res.correct ? '✓' : '✗'}
+                {!res ? '·' : <Mark kind={res.correct ? 'check' : 'cross'} />}
               </span>
               <span className="min-w-0">
-                <span className={`block truncate text-sm font-medium ${active ? 'text-navy' : 'text-slate-700'}`}>
+                <span className={`block text-base font-bold leading-snug ${active ? 'text-white' : 'text-navy'}`}>
                   {c.title}
                 </span>
-                <span className="text-xs text-slate-400">Stage {c.week}</span>
+                <span className={`text-sm ${active ? 'text-white/90' : 'text-teal'}`}>Stage {c.week}</span>
               </span>
             </button>
           </li>

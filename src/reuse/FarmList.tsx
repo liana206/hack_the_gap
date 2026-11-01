@@ -3,6 +3,7 @@ import type { Dataset, Grade, Lot } from './types.ts'
 import { isFlagged } from './match.ts'
 import { firstRetire, isDue, turbinesOf, type Turbine } from './turbines.ts'
 import { COUNTRY_LABEL, ITEM_LABEL, UNIT_LABEL, type GymLog } from './ui.ts'
+import Mark from '../components/Mark.tsx'
 
 export const YEAR_MIN = 2025
 export const YEAR_MAX = 2040
@@ -39,9 +40,9 @@ export default function FarmList({ data, year, lotId, signed, gymLog, onYear, on
           <span className="text-lg font-semibold text-navy">{year}</span>
         </div>
         <input type="range" min={YEAR_MIN} max={YEAR_MAX} value={year} onChange={(e) => onYear(Number(e.target.value))}
-          className="mt-1 w-full accent-[#2a78d6]" />
-        <div className="text-[11px] text-slate-500">
-          <b className="text-orange-600">{dueCount}</b> turbines due within {win} years
+          className="mt-1 w-full accent-accent" />
+        <div className="text-xs text-slate-500">
+          <b className="text-orange-700">{dueCount}</b> turbines due within {win} years
         </div>
       </div>
 
@@ -52,7 +53,7 @@ export default function FarmList({ data, year, lotId, signed, gymLog, onYear, on
           const turbines = turbinesOf(f)
           const due = turbines.filter((t) => isDue(t, year, win))
           return (
-            <div key={f.id} className={`mb-1 rounded-xl ${isOpen ? 'bg-slate-50 ring-1 ring-slate-200' : ''}`}>
+            <div key={f.id} className={`mb-1 rounded-xl ${isOpen ? 'border border-slate-200 bg-slate-50' : 'border border-transparent'}`}>
               <button
                 onClick={() => {
                   setOpen(isOpen ? null : f.id)
@@ -60,7 +61,7 @@ export default function FarmList({ data, year, lotId, signed, gymLog, onYear, on
                 }}
                 className="flex w-full items-start gap-2 rounded-xl px-2 py-2 text-left hover:bg-slate-50"
               >
-                <span className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-[#2a78d6]"
+                <span className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-teal"
                   style={flagged ? { boxShadow: '0 0 0 2px #fff, 0 0 0 4px #f97316' } : undefined} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -72,7 +73,7 @@ export default function FarmList({ data, year, lotId, signed, gymLog, onYear, on
                   </div>
                   <div className="text-xs">
                     {due.length ? (
-                      <span className="text-orange-600">{due.length} of {f.turbines} turbines due · first {firstRetire(f)}</span>
+                      <span className="text-orange-700">{due.length} of {f.turbines} turbines due · first {firstRetire(f)}</span>
                     ) : (
                       <span className="text-slate-400">first turbine retires {firstRetire(f)}</span>
                     )}
@@ -105,7 +106,7 @@ function FarmTurbines({ turbines, due, lotId, selTurbine, farmLots, turbineCount
 
   return (
     <div className="space-y-1 px-2 pb-2">
-      <div className="px-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="px-1 pt-1 text-xs font-semibold text-slate-500">
         {due.length ? 'Turbines due to retire' : 'No turbine due yet'}
       </div>
       {shown.map((t) => {
@@ -117,14 +118,14 @@ function FarmTurbines({ turbines, due, lotId, selTurbine, farmLots, turbineCount
               <span className="w-8 shrink-0 font-mono text-sm font-semibold text-navy">{t.id}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1 text-xs">
-                  <span className={due.includes(t) ? 'font-medium text-orange-600' : 'text-slate-500'}>retires {t.retire_year}</span>
+                  <span className={due.includes(t) ? 'font-medium text-orange-700' : 'text-slate-500'}>retires {t.retire_year}</span>
                   {t.gym_case && (
-                    <span className={`rounded px-1 text-[10px] ${gym ? 'bg-emerald-50 text-emerald-700' : 'bg-sky-50 text-sky-700'}`}>
-                      {gym ? 'diagnosed in task ✓' : 'task case'}
+                    <span className={`inline-flex items-center gap-1 rounded px-1 text-xs ${gym ? 'bg-emerald-50 text-emerald-700' : 'bg-teal-soft text-teal'}`}>
+                      {gym ? <>diagnosed in task <Mark kind="check" /></> : 'task case'}
                     </span>
                   )}
                 </div>
-                <div className={`text-[11px] leading-snug text-slate-500 ${isOpen ? '' : 'truncate'}`}>{t.reason}</div>
+                <div className={`text-xs leading-snug text-slate-500 ${isOpen ? '' : 'truncate'}`}>{t.reason}</div>
               </div>
             </button>
             {isOpen && (
@@ -136,12 +137,12 @@ function FarmTurbines({ turbines, due, lotId, selTurbine, farmLots, turbineCount
         )
       })}
       {later.length > 0 && (
-        <button onClick={() => setShowLater(!showLater)} className="w-full px-1 py-1 text-left text-[11px] text-accent hover:underline">
+        <button onClick={() => setShowLater(!showLater)} className="w-full px-1 py-1 text-left text-xs text-accent hover:underline">
           {showLater ? 'Show only turbines due' : `+ ${later.length} later (${later[0].retire_year}–${later[later.length - 1].retire_year})`}
         </button>
       )}
       <details className="rounded-lg border border-dashed border-slate-300 bg-white/60">
-        <summary className="cursor-pointer px-2 py-1.5 text-[11px] text-slate-500">Plan the whole farm at once ({turbineCount} turbines)</summary>
+        <summary className="cursor-pointer px-2 py-1.5 text-xs text-slate-500">Plan the whole farm at once ({turbineCount} turbines)</summary>
         <div className="space-y-1 px-2 pb-2">
           {farmLots.map((l) => <LotButton key={l.id} l={l} active={l.id === lotId} signed={signed.has(l.id)} onLot={onLot} />)}
         </div>
@@ -159,20 +160,20 @@ function LotButton({ l, active, signed, onLot }: { l: Lot; active: boolean; sign
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium text-navy">{ITEM_LABEL[l.item]}</span>
         <span className="flex items-center gap-1">
-          {signed && <span className="text-[10px] text-emerald-600">✔ signed</span>}
+          {signed && <span className="flex items-center gap-1 text-xs text-emerald-700"><Mark kind="check" /> signed</span>}
           <GradeBadge g={l.grade} />
         </span>
       </div>
-      <div className="text-[11px] text-slate-500">
+      <div className="text-xs text-slate-500">
         {l.quantity} {UNIT_LABEL[l.item]} · {l.unit_mass_t} t each{l.length_m && ` · ${l.length_m} m`}
         {l.item_status === 'waste' && ' · waste'}
       </div>
-      {active && <div className="text-[10px] text-accent">Routes shown on the map →</div>}
+      {active && <div className="text-xs text-accent">Routes shown on the map →</div>}
     </button>
   )
 }
 
 export function GradeBadge({ g }: { g: Grade }) {
   const cls = { A: 'bg-emerald-100 text-emerald-700', B: 'bg-amber-100 text-amber-700', C: 'bg-rose-100 text-rose-700' }[g]
-  return <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${cls}`}>Grade {g}</span>
+  return <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${cls}`}>Grade {g}</span>
 }

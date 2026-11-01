@@ -4,6 +4,7 @@ import { availableYear } from './match.ts'
 import { isDue, turbinesOf, type Turbine } from './turbines.ts'
 import { ITEM_LABEL, ROUTE_COLORS, UNIT_LABEL, fmtEur, fmtGJ, fmtT, type GymLog } from './ui.ts'
 import { GradeBadge } from './FarmList.tsx'
+import Mark from '../components/Mark.tsx'
 
 export interface SignOff {
   coOwner: boolean
@@ -80,19 +81,19 @@ export default function PlanPanel(p: Props) {
                 className={`block w-full rounded-xl border p-2.5 text-left transition ${active ? 'border-accent bg-accent-soft/60 ring-1 ring-accent' : 'border-slate-200 hover:border-accent'}`}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-medium text-navy">{i + 1}. {pl.name}</span>
-                  {blocked && <span className="rounded bg-rose-50 px-1.5 text-[10px] text-rose-700">fails a check</span>}
+                  {blocked && <span className="rounded bg-rose-50 px-1.5 text-xs text-rose-700">fails a check</span>}
                 </div>
                 <div className="mt-1.5 flex h-2 overflow-hidden rounded-full bg-slate-100">
                   {pl.allocation.lines.map((l, j) => (
                     <div key={l.route.receiver.id} style={{ width: `${(l.units / lot.quantity) * 100}%`, background: ROUTE_COLORS[j % ROUTE_COLORS.length] }} />
                   ))}
                 </div>
-                <div className="mt-1 grid grid-cols-3 text-[11px] tabular-nums text-slate-600">
+                <div className="mt-1 grid grid-cols-3 text-xs tabular-nums text-slate-600">
                   <span>{fmtGJ(pl.totals.embodied_kept_gj)} kept</span>
                   <span className="text-center">{fmtEur(pl.totals.cost_eur)}</span>
                   <span className="text-right">{fmtT(pl.totals.net_t)} CO₂</span>
                 </div>
-                {active && <div className="mt-1 text-[11px] text-slate-500">{pl.rule}</div>}
+                {active && <div className="mt-1 text-xs text-slate-500">{pl.rule}</div>}
               </button>
             )
           })}
@@ -121,21 +122,21 @@ export default function PlanPanel(p: Props) {
           ))}
         </ul>
         {plan.allocation.fallback && (
-          <div className="mt-1 text-[11px] text-slate-500">
+          <div className="mt-1 text-xs text-slate-500">
             Fallback: if announced or open projects fall through, their {plan.allocation.uncertain_units} units go to {plan.allocation.fallback.receiver.name}.
           </div>
         )}
-        {p.view.excludedCount > 0 && <div className="mt-1 text-[11px] text-slate-400">{p.view.excludedCount} receivers excluded: click a faded marker to see why.</div>}
+        {p.view.excludedCount > 0 && <div className="mt-1 text-xs text-slate-400">{p.view.excludedCount} receivers excluded: click a faded marker to see why.</div>}
       </Fold>
 
       <Fold title="Plan checks" hint={failing.length ? `${failing.length} open` : 'all passed'} warn={failing.some((c) => c.blocking)} defaultOpen={failing.length > 0}>
         <ul className="space-y-1">
           {checks[plan.id].map((c) => (
             <li key={c.id} className="flex gap-1.5 text-xs">
-              <span className={c.ok ? 'text-emerald-600' : c.blocking ? 'text-rose-600' : 'text-amber-600'}>{c.ok ? '✔' : c.blocking ? '✖' : '!'}</span>
+              <span className={c.ok ? 'text-emerald-600' : c.blocking ? 'text-rose-600' : 'text-amber-600'}><Mark kind={c.ok ? 'check' : c.blocking ? 'cross' : 'warn'} className="mt-0.5" /></span>
               <div>
                 <span className="text-slate-700">{c.label}</span>{' '}
-                <span className="text-[10px] uppercase text-slate-400">{c.source}</span>
+                <span className="text-xs text-slate-500">{c.source}</span>
                 <div className="text-slate-500">{c.detail}</div>
               </div>
             </li>
@@ -150,7 +151,7 @@ export default function PlanPanel(p: Props) {
             <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
               {[false, true].map((s) => (
                 <button key={String(s)} onClick={() => p.onSeg(s)}
-                  className={`rounded-md py-1 ${p.seg === s ? 'bg-white font-medium text-navy shadow' : 'text-slate-500'}`}>
+                  className={`rounded-md py-1 ${p.seg === s ? 'bg-white font-medium text-navy' : 'text-slate-500'}`}>
                   {s ? 'Segmented' : 'Whole'}
                 </button>
               ))}
@@ -164,14 +165,14 @@ export default function PlanPanel(p: Props) {
               <span className="tabular-nums text-slate-400">{p.weights[k]}</span>
             </div>
             <input type="range" min={0} max={3} step={0.5} value={p.weights[k]}
-              onChange={(e) => p.onWeights({ ...p.weights, [k]: Number(e.target.value) })} className="w-full accent-[#2a78d6]" />
+              onChange={(e) => p.onWeights({ ...p.weights, [k]: Number(e.target.value) })} className="w-full accent-accent" />
           </label>
         ))}
-        <div className="text-[11px] text-slate-400">Weights rank routes within a tier; a higher waste-hierarchy tier always comes first.</div>
+        <div className="text-xs text-slate-400">Weights rank routes within a tier; a higher waste-hierarchy tier always comes first.</div>
       </Fold>
 
       <SignOffBox view={p.view} planName={plan.name} onSignoff={p.onSignoff} />
-      <div className="text-[11px] text-slate-400">All figures come from placeholder factors (pseudo data).</div>
+      <div className="text-xs text-slate-400">All figures come from placeholder factors (pseudo data).</div>
     </div>
   )
 }
@@ -188,7 +189,7 @@ function SignOffBox({ view, planName, onSignoff }: { view: LotView; planName: st
   return (
     <div className="rounded-xl border border-slate-200 p-3">
       <div className="card-title mb-1">Decision</div>
-      <div className="mb-2 text-[11px] text-slate-500">
+      <div className="mb-2 text-xs text-slate-500">
         The matcher ranks · the junior proposes · the senior signs{needsCoOwner && ' after the co-owner approves'}.
       </div>
       {blockers.length > 0 && <div className="mb-2 rounded bg-rose-50 px-2 py-1 text-xs text-rose-700">Cannot sign: {blockers.map((b) => b.label).join(', ')}</div>}
@@ -201,14 +202,14 @@ function SignOffBox({ view, planName, onSignoff }: { view: LotView; planName: st
       )}
       {signed ? (
         <div className="rounded-lg bg-emerald-50 px-2 py-1.5 text-xs font-medium text-emerald-700">
-          ✔ {planName} signed · {new Date(s.signedAt!).toLocaleDateString()}
+          <Mark kind="check" className="mr-1 align-[-0.125em]" />{planName} signed · {new Date(s.signedAt!).toLocaleDateString()}
           <button onClick={() => onSignoff({ ...s, signed: null, signedAt: null })} className="ml-2 font-normal underline">withdraw</button>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => onSignoff({ ...s, proposed: fingerprint })} disabled={proposed}
             className="rounded-lg border border-navy py-1.5 text-xs font-medium text-navy disabled:border-emerald-600 disabled:text-emerald-700">
-            {proposed ? '✔ Proposed' : 'Propose (junior)'}
+            {proposed ? <><Mark kind="check" className="mr-1 align-[-0.125em]" />Proposed</> : 'Propose (junior)'}
           </button>
           <button onClick={() => onSignoff({ ...s, signed: fingerprint, signedAt: new Date().toISOString() })} disabled={!canSign}
             className="rounded-lg bg-navy py-1.5 text-xs font-medium text-white disabled:opacity-40">
@@ -222,13 +223,13 @@ function SignOffBox({ view, planName, onSignoff }: { view: LotView; planName: st
 
 function TurbineNote({ t, gym }: { t: Turbine; gym: GymLog[string] | null }) {
   return (
-    <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600">
+    <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2 text-xs text-slate-600">
       <div><b className="text-navy">{t.id}</b> retires {t.retire_year}: {t.reason}</div>
       {t.gym_case && (
         <div className="mt-1 flex items-center justify-between gap-2">
           <span>
             {gym
-              ? <>Junior's diagnosis: <b>{gym.decision === 'dismantle' ? 'dismantle' : gym.decision === 'maintenance' ? 'call maintenance' : 'nothing wrong'}</b> {gym.correct ? '✓' : '✗'}</>
+              ? <>Junior's diagnosis: <b>{gym.decision === 'dismantle' ? 'dismantle' : gym.decision === 'maintenance' ? 'call maintenance' : 'nothing wrong'}</b> <Mark kind={gym.correct ? 'check' : 'cross'} /></>
               : 'Diagnosis case not played yet'}
           </span>
           <a href={`#/case/${t.gym_case}`} className="shrink-0 text-accent hover:underline">Open case ↗</a>
@@ -261,10 +262,10 @@ function Overview({ data, year, signedCount }: { data: Dataset; year: number; si
         <Step n={3}>Click any marker, route or legend entry for details.</Step>
         <Step n={4}>Propose the plan; a senior signs it.</Step>
       </ol>
-      <div className="rounded-lg bg-sky-50 px-3 py-2 text-[11px] text-sky-800">
+      <div className="rounded-lg bg-teal-soft px-3 py-2 text-xs text-teal">
         Monte Mele holds the turbines from the Stage 1–2 cases. T01, diagnosed for dismantling there, is the first to retire.
       </div>
-      <div className="rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-800">
+      <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
         Pseudo data: farm sites and specs are public Alpiq data; turbines, components, hubs, receivers, prices and energy/CO₂ factors are invented placeholders.
       </div>
     </div>
@@ -273,7 +274,7 @@ function Overview({ data, year, signedCount }: { data: Dataset; year: number; si
 
 const Step = ({ n, children }: { n: number; children: ReactNode }) => (
   <li className="flex gap-2">
-    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-semibold text-white">{n}</span>
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-semibold text-white">{n}</span>
     <span>{children}</span>
   </li>
 )
@@ -281,9 +282,9 @@ const Step = ({ n, children }: { n: number; children: ReactNode }) => (
 function Metric({ k, v, sub, strong }: { k: string; v: string; sub?: string; strong?: boolean }) {
   return (
     <div className={`rounded-xl px-3 py-2 ${strong ? 'bg-emerald-50' : 'bg-slate-50'}`}>
-      <div className="text-[10px] uppercase tracking-wide text-slate-500">{k}</div>
+      <div className="text-xs text-slate-500">{k}</div>
       <div className={`text-lg font-semibold tabular-nums ${strong ? 'text-emerald-700' : 'text-navy'}`}>{v}</div>
-      {sub && <div className="text-[10px] leading-tight text-slate-500">{sub}</div>}
+      {sub && <div className="text-xs leading-tight text-slate-500">{sub}</div>}
     </div>
   )
 }
@@ -294,7 +295,7 @@ function Fold({ title, hint, warn, defaultOpen, children }: { title: string; hin
     <div className="rounded-xl border border-slate-200">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-3 py-2 text-left">
         <span className="text-sm font-medium text-slate-700">{open ? '▾' : '▸'} {title}</span>
-        {hint && <span className={`text-[11px] ${warn ? 'text-rose-600' : 'text-slate-400'}`}>{hint}</span>}
+        {hint && <span className={`text-xs ${warn ? 'text-rose-600' : 'text-slate-400'}`}>{hint}</span>}
       </button>
       {open && <div className="border-t border-slate-100 px-3 py-2">{children}</div>}
     </div>

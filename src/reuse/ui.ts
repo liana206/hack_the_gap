@@ -30,23 +30,23 @@ export const COUNTRY_LABEL: Record<string, string> = {
   IT: 'Italy', FR: 'France', CH: 'Switzerland', SE: 'Sweden', ES: 'Spain', DE: 'Germany', NL: 'Netherlands', DK: 'Denmark',
 }
 
-// Map colours by location type (handover: blue farm, amber hub, green construction, purple wind farm, grey factory).
+// Map colours by location type: teal-blue farm, amber hub, green construction, dark ink wind farm, light grey factory.
 export const TYPE_COLOR: Record<LocType, string> = {
-  farm: '#2a78d6',
-  hub: '#d97706',
-  open_call: '#16a34a',
-  infrastructure: '#16a34a',
-  street_furniture: '#16a34a',
-  construction: '#16a34a',
-  wind_farm: '#7c3aed',
-  factory: '#64748b',
-  recycler: '#64748b',
-  coprocessing: '#64748b',
-  marketplace: '#0d9488',
-  research: '#16a34a',
+  farm: '#2b6f80',
+  hub: '#a8660c',
+  open_call: '#2f8f4e',
+  infrastructure: '#2f8f4e',
+  street_furniture: '#2f8f4e',
+  construction: '#2f8f4e',
+  wind_farm: '#2e3431',
+  factory: '#9aa39e',
+  recycler: '#9aa39e',
+  coprocessing: '#9aa39e',
+  marketplace: '#0d7a7f',
+  research: '#2f8f4e',
 }
 // Route colours by allocation order (first = largest share in the plan).
-export const ROUTE_COLORS = ['#059669', '#0d9488', '#0284c7', '#7c3aed', '#c2410c', '#a16207']
+export const ROUTE_COLORS = ['#1f7a4d', '#0d7a7f', '#2f9e8f', '#1f5f7a', '#a8660c', '#6b7a3a']
 
 // Legend groups: what each marker colour means, shown in the floating card.
 export const LEGEND: { key: string; label: string; types: LocType[]; shape: 'circle' | 'square' | 'diamond'; text: string }[] = [

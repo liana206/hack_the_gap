@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import CaseFacts from './components/CaseFacts'
+import CaseDeck from './components/CaseDeck'
 import ChallengePanel from './components/ChallengePanel'
-import CaseList from './components/CaseList'
 import { ConditionsChart, GapChart, TemperatureChart } from './components/Charts'
 import DecisionPanel from './components/DecisionPanel'
+import Mark from './components/Mark'
 import Reveal from './components/Reveal'
 import SeniorChat from './components/SeniorChat'
 import WeekPicker from './components/WeekPicker'
@@ -134,12 +135,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen font-sans text-slate-800">
-      <header className="bg-navy text-white">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">Alpiq · Hack the Gap</div>
-            <h1 className="text-xl font-semibold">From Onboarding To Ownership</h1>
-          </div>
+      <header>
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-8 pb-2 pt-8">
+          <h1 className="text-[2.25rem] font-extrabold leading-none tracking-tight text-navy">From Onboarding To Ownership</h1>
           <WeekPicker
             week={weekN}
             onChange={(n) => {
@@ -155,12 +153,13 @@ export default function App() {
 
       {mapOpen && (
         <>
-          <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3 px-4 pt-3 text-sm">
+          <div className="mx-auto flex max-w-[1900px] flex-wrap items-center justify-between gap-3 px-8 pt-3 text-base">
             <span className="text-slate-700">
               {goesToMap && played && scenario ? (
                 <>
-                  <b className={played.decision === 'dismantle' ? 'text-emerald-700' : 'text-rose-700'}>
-                    {played.decision === 'dismantle' ? '✓ Right call.' : '✗ Not the right call.'}
+                  <b className={`inline-flex items-center gap-1 ${played.decision === 'dismantle' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    <Mark kind={played.decision === 'dismantle' ? 'check' : 'cross'} />
+                    {played.decision === 'dismantle' ? 'Right call.' : 'Not the right call.'}
                   </b>{' '}
                   {scenario.turbine.name} is being dismantled. Plan where its parts go.
                 </>
@@ -168,35 +167,42 @@ export default function App() {
                 'Second-life map'
               )}
             </span>
-            <button onClick={closeMap} className="rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-2">
+            <button onClick={closeMap} className="rounded-xl bg-accent px-4 py-2 text-base font-semibold text-white hover:bg-accent-ink">
               {goesToMap ? '← Back to the result and Sandra' : '← Back to the cases'}
             </button>
           </div>
           <ReuseApp />
         </>
       )}
-      <div className={`mx-auto max-w-[1400px] gap-6 px-6 py-6 lg:grid-cols-[280px_1fr] ${mapOpen ? 'hidden' : 'grid'}`}>
+      <div className={`mx-auto max-w-[1600px] gap-6 px-8 lg:grid-cols-[17rem_1fr] py-8 ${mapOpen ? 'hidden' : 'grid'}`}>
         <aside className="space-y-4">
-          <div className="card p-4">
-            <div className="card-title mb-3 px-1">Cases</div>
-            <CaseList cases={cases} selected={selectedId} lastResult={lastResult} onSelect={setSelectedId} />
-          </div>
-          <div className="card p-5">
-            <div className="card-title">Learning log</div>
-            <div className="mt-2 text-3xl font-semibold text-navy">
+          <CaseDeck cases={cases} selected={selectedId} lastResult={lastResult} onSelect={setSelectedId} />
+          <div className="rounded-2xl bg-navy-2 p-5 text-white">
+            <div className="text-base font-bold text-white">Learning log</div>
+            <div className="mt-1 text-6xl font-extrabold tracking-tight text-white">
               {weekCorrect}
-              <span className="text-lg text-slate-400">/{cases.length || '–'}</span>
+              <span className="text-3xl text-white/70">/{cases.length || '–'}</span>
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="my-3 flex gap-1.5" aria-hidden="true">
+              {cases.map((c) => {
+                const r = firstTry[c.id]
+                return (
+                  <span key={c.id} className={`grid h-7 flex-1 place-items-center rounded-md text-sm ${!r ? 'bg-white/15' : r.correct ? 'bg-accent-bright text-white' : 'bg-rose-600 text-white'}`}>
+                    {r && <Mark kind={r.correct ? 'check' : 'cross'} />}
+                  </span>
+                )
+              })}
+            </div>
+            <div className="text-base text-white">
               Stage {weekN}: correct on first try ({weekPlayed} played)
             </div>
-            {avgDetail && <div className="mt-1 text-sm text-slate-500">Reasoning detail: {avgDetail}/7 on average</div>}
-            {traps.length > 0 && <div className="mt-1 text-sm text-slate-500">Wrong AI caught: {trapsCaught}/{traps.length} traps met</div>}
-            <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+            {avgDetail && <div className="mt-1 text-base text-white">Reasoning detail: {avgDetail}/7 on average</div>}
+            {traps.length > 0 && <div className="mt-1 text-base text-white">Wrong AI caught: {trapsCaught}/{traps.length} traps met</div>}
+            <div className="mt-3 flex items-center justify-between text-sm text-white/80">
               <span>{log.length} decisions logged</span>
               {log.length > 0 && (
                 <button
-                  className="underline hover:text-slate-600"
+                  className="underline hover:text-white"
                   onClick={() => confirm('Clear the whole learning log?') && setLog([])}
                 >
                   reset
@@ -207,7 +213,7 @@ export default function App() {
         </aside>
 
         <main className="min-w-0 space-y-6">
-          {error && <div className="card border-l-4 border-rose-400 p-4 text-sm text-rose-700">{error}</div>}
+          {error && <div className="card border-rose-100 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
           {!week.ready ? (
             <ComingSoon n={week.n} />
@@ -217,11 +223,11 @@ export default function App() {
             <>
               {played && <Reveal s={scenario} decision={played.decision} reason={played.reason} firstDecision={played.firstDecision} debate={played.debate} />}
               {played && <SeniorChat key={scenario.id + log.length} week={week} s={scenario} decision={played.decision} reason={played.reason} firstDecision={played.firstDecision} debate={played.debate} />}
-              <CaseFacts s={scenario} />
+              <CaseFacts s={scenario} figure />
               <div className="grid gap-6 2xl:grid-cols-2">
                 <div className="space-y-6">
                   <TemperatureChart s={scenario} revealed={!!played} />
-                  <GapChart s={scenario} revealed={!!played} showHint={week.features.readingHelp} />
+                  <GapChart s={scenario} revealed={!!played} showHint={week.features.readingHelp} strip />
                 </div>
                 <ConditionsChart s={scenario} revealed={!!played} />
               </div>
@@ -245,7 +251,7 @@ function ComingSoon({ n }: { n: number }) {
       <p className="mt-2 max-w-xl text-slate-600">{w.description}</p>
       <div className="mt-5 flex flex-wrap gap-2">
         {flags.map((f) => (
-          <span key={f} className="rounded-full bg-accent-soft px-3 py-1 font-mono text-xs text-accent">
+          <span key={f} className="rounded-full bg-teal-soft px-3 py-1 text-sm font-medium text-teal">
             {f}
           </span>
         ))}

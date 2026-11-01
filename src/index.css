@@ -1,19 +1,88 @@
 @import "tailwindcss";
 
+/* DM Sans (SIL Open Font License), bundled so the demo works offline. */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-wght-normal.woff2") format("woff2");
+}
+
+/* Pitch palette: near-black forest ink on a neutral grey ground, white cards.
+   One green for selection and the main action; teal-blue and sage carry secondary data.
+   The framework scales below are remapped, so existing classes follow. */
 @theme {
-  --color-navy: #0f1e36;
-  --color-navy-2: #1a2d4d;
-  --color-accent: #2a78d6;
-  --color-accent-soft: #e8f1fc;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-navy: #0e2a1c; /* forest ink: headings, values */
+  --color-navy-2: #1d4d33; /* forest: labels, section titles */
+  --color-accent: #16843b; /* green: selected case, primary action, progress */
+  --color-accent-ink: #136f32; /* green text on light grounds */
+  --color-accent-bright: #22a447; /* green data marks */
+  --color-accent-soft: #e6f2ea; /* pale green: selected answer, met checks */
+  --color-teal: #2b6f80; /* teal-blue: secondary marks, senior, chips */
+  --color-teal-soft: #dcecef;
+  --color-sage: #9cb8a8;
+  --color-ground: #eef0ef;
+  --color-deck: #2b3338; /* dark charcoal: the case deck */
+
+  /* neutrals */
+  --color-slate-50: #f5f6f5;
+  --color-slate-100: #ebedec;
+  --color-slate-200: #dcdfdd;
+  --color-slate-300: #c3c8c5;
+  --color-slate-400: #5f6863;
+  --color-slate-500: #525a56;
+  --color-slate-600: #414845;
+  --color-slate-700: #2e3431;
+  --color-slate-800: #1c201e;
+  --color-slate-900: #111412;
+
+  /* good: forest greens */
+  --color-emerald-50: #e6f4ec;
+  --color-emerald-100: #cfe9da;
+  --color-emerald-600: #1f7a4d;
+  --color-emerald-700: #186640;
+  --color-emerald-800: #12512f;
+
+  /* bad: the one muted red outside the green family */
+  --color-rose-50: #fbeceb;
+  --color-rose-100: #f6d5d3;
+  --color-rose-400: #c4545a;
+  --color-rose-600: #b3363c;
+  --color-rose-700: #9b2c31;
+
+  /* warning: muted amber, only where the data warns */
+  --color-amber-50: #fbf5e6;
+  --color-amber-100: #f4e6c2;
+  --color-amber-200: #ead39a;
+  --color-amber-600: #a8660c;
+  --color-amber-700: #8a5310;
+  --color-amber-800: #6f4310;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  /* Projector scale: every rem-based size grows by an eighth */
+  html {
+    font-size: 112.5%;
+  }
+  body {
+    background: var(--color-ground);
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl bg-white shadow-[0_1px_3px_rgba(15,30,54,0.06),0_8px_24px_rgba(15,30,54,0.06)] ring-1 ring-slate-200/70;
+    @apply rounded-2xl bg-white;
   }
   .card-title {
-    @apply text-xs font-semibold uppercase tracking-wider text-slate-500;
+    @apply text-sm font-bold text-navy-2;
   }
 }
 
@@ -22,23 +91,39 @@
   filter: grayscale(0.85) brightness(1.04) contrast(0.9);
 }
 
-/* Reuse map: distance labels on route lines */
+/* Reuse map: distance labels on route lines (they float over the map) */
 .leaflet-tooltip.km-label {
   padding: 0 4px;
   border: 0;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 2px rgba(15, 30, 54, 0.2);
-  color: #0f1e36;
-  font-size: 10px;
+  box-shadow: 0 1px 2px rgba(15, 61, 46, 0.2); /* taste-skill-ignore: overlay on the map */
+  color: #0e2a1c;
+  font-size: 11px;
   font-weight: 600;
 }
 .leaflet-tooltip.km-label::before {
   display: none;
 }
 
+/* Recharts measures tick labels in an off-screen span (top -20000px); keep it invisible too */
+#recharts_measurement_span {
+  visibility: hidden;
+}
+
 /* Recharts: no focus outline box around charts on click */
 .recharts-wrapper:focus,
 .recharts-surface:focus {
   outline: none;
+}
+
+/* Leaflet zoom buttons default to Lucida Console; use the app face */
+.leaflet-control-zoom a {
+  font-family: inherit;
+}
+
+/* Case deck: a thin light scrollbar shows there are more cases below */
+.deck-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }

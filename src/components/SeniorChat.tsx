@@ -43,7 +43,7 @@ export default function SeniorChat({ week, s, decision, reason, firstDecision, d
       const reply =
         history.length === 1
           ? offlineFeedback(s, decision, reason, `Gemini unavailable: ${msg}`)
-          : `⚠️ Could not reach the senior (${msg}). Try asking again in a moment.`
+          : `Could not reach the senior (${msg}). Try asking again in a moment.`
       setMessages([...history, { role: 'assistant', content: reply }])
     } finally {
       setBusy(false)
@@ -69,12 +69,12 @@ export default function SeniorChat({ week, s, decision, reason, firstDecision, d
   }
 
   return (
-    <div className="card p-6">
+    <div className="card p-7">
       <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-navy text-sm font-semibold text-white">SK</div>
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-teal text-base font-bold text-white">SK</div>
         <div>
-          <div className="font-semibold text-navy">Sandra · Senior maintenance engineer</div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xl font-bold text-navy">Sandra · Senior maintenance engineer</div>
+          <div className="text-sm text-slate-600">
             AI coach ({week.seniorStyle} style){offline && ' · offline mode'}. Your score comes from the real outcome and your detail grade from a fixed checklist, not from her opinion.
           </div>
         </div>
@@ -84,14 +84,14 @@ export default function SeniorChat({ week, s, decision, reason, firstDecision, d
         {messages.slice(1).map((m, i) => (
           <div
             key={i}
-            className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-              m.role === 'assistant' ? 'bg-slate-50 text-slate-800' : 'ml-auto bg-accent text-white'
+            className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-4 py-3 text-lg leading-relaxed ${
+              m.role === 'assistant' ? 'bg-slate-50 text-slate-800' : 'ml-auto bg-teal text-white'
             }`}
           >
             {m.content}
           </div>
         ))}
-        {busy && <div className="w-fit rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-400">Sandra is thinking…</div>}
+        {busy && <div className="w-fit rounded-xl bg-slate-50 px-4 py-3 text-lg text-slate-600">Sandra is thinking…</div>}
       </div>
 
       <div className="mt-4 flex gap-2">
@@ -100,12 +100,12 @@ export default function SeniorChat({ week, s, decision, reason, firstDecision, d
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && ask()}
           placeholder="Ask a follow-up question, or push back if you disagree…"
-          className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="min-w-0 flex-1 rounded-lg border border-slate-300 px-4 py-3 text-lg outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <button
           onClick={ask}
           disabled={busy || !input.trim()}
-          className="rounded-xl bg-navy px-4 text-sm font-semibold text-white hover:bg-navy-2 disabled:opacity-40"
+          className="rounded-lg bg-accent px-6 text-lg font-bold text-white transition-colors hover:bg-accent-ink active:translate-y-px disabled:opacity-40"
         >
           Ask
         </button>

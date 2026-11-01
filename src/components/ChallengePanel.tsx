@@ -68,12 +68,12 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
   }
 
   return (
-    <div className="card p-6">
+    <div className="card p-7">
       <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-navy text-sm font-semibold text-white">SK</div>
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-teal text-base font-bold text-white">SK</div>
         <div>
-          <div className="font-semibold text-navy">Debate with Sandra</div>
-          <div className="text-xs text-slate-500">She is sometimes wrong on purpose. Check her arguments against the data: the decision is yours. The debate does not change your score.</div>
+          <div className="text-xl font-bold text-navy">Debate with Sandra</div>
+          <div className="text-sm text-slate-600">She is sometimes wrong on purpose. Check her arguments against the data: the decision is yours. The debate does not change your score.</div>
         </div>
       </div>
 
@@ -81,14 +81,14 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-              m.role === 'assistant' ? 'bg-slate-50 text-slate-800' : 'ml-auto bg-accent text-white'
+            className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-4 py-3 text-lg leading-relaxed ${
+              m.role === 'assistant' ? 'bg-slate-50 text-slate-800' : 'ml-auto bg-teal text-white'
             }`}
           >
             {m.content}
           </div>
         ))}
-        {busy && <div className="w-fit rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-400">Sandra is checking your argument…</div>}
+        {busy && <div className="w-fit rounded-xl bg-slate-50 px-4 py-3 text-lg text-slate-600">Sandra is checking your argument…</div>}
       </div>
 
       {!done && (
@@ -98,17 +98,17 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
             onChange={(e) => setInput(e.target.value)}
             rows={2}
             placeholder="Answer her, using the data…"
-            className="flex-1 rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            className="min-w-0 flex-1 rounded-lg border border-slate-300 p-3 text-lg outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <div className="flex flex-col gap-2">
-            <button onClick={send} disabled={busy || !input.trim()} className="flex-1 rounded-xl bg-navy px-4 text-sm font-semibold text-white hover:bg-navy-2 disabled:opacity-40">
+            <button onClick={send} disabled={busy || !input.trim()} className="flex-1 rounded-lg bg-accent px-6 text-lg font-bold text-white transition-colors hover:bg-accent-ink active:translate-y-px disabled:opacity-40">
               Reply
             </button>
             <button
               onClick={() => setSatisfied(true)}
               disabled={busy}
               title="End the debate and stand by what you have said so far. What you left open is shown after the reveal."
-              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
             >
               I'm satisfied with my case
             </button>
@@ -116,8 +116,8 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
         </div>
       )}
 
-      <h3 className="mt-5 text-sm font-semibold text-slate-700">Your call</h3>
-      <div className="mt-2 grid gap-3 md:grid-cols-3">
+      <h3 className="mt-6 text-3xl font-extrabold tracking-tight text-navy">Your call</h3>
+      <div className="mt-3 grid gap-3 md:grid-cols-3">
         {ANSWERS.map((a) => {
           const on = call === a.id
           return (
@@ -125,19 +125,19 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
               key={a.id}
               onClick={() => setCall(a.id)}
               aria-pressed={on}
-              className={`rounded-2xl border-2 p-4 text-left transition ${
-                on ? 'border-accent bg-accent-soft shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+              className={`rounded-xl border-2 p-5 text-left transition-colors ${
+                on ? 'border-accent bg-accent-soft' : 'border-transparent bg-slate-50 hover:border-slate-300'
               }`}
             >
-              <div className={`font-semibold ${on ? 'text-accent' : 'text-slate-800'}`}>{a.title}</div>
-              {a.id === stance && <div className="mt-1 text-[11px] font-medium text-slate-500">Sandra's call</div>}
+              <div className={`text-xl font-bold ${on ? 'text-accent-ink' : 'text-navy'}`}>{a.title}</div>
+              {a.id === stance && <div className="mt-1 text-sm font-medium text-teal">Sandra's call</div>}
             </button>
           )
         })}
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-4">
-        <span className="text-xs text-slate-500">
+        <span className="text-base text-slate-600">
           {unchecked
             ? `Offline: your replies cannot be checked (${unchecked}). You can lock in.`
             : !done
@@ -160,7 +160,7 @@ export default function ChallengePanel({ s, first, reason, onFinal }: Props) {
               checked: unchecked === null,
             })
           }
-          className="shrink-0 rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
+          className="shrink-0 rounded-lg bg-accent px-6 py-3 text-lg font-bold text-white transition-colors hover:bg-accent-ink active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
         >
           Lock in final call & reveal
         </button>

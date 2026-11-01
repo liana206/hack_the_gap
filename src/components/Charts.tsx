@@ -13,17 +13,18 @@ import {
 import type { Scenario } from '../types'
 
 const C = {
-  measured: '#2a78d6', // accent
-  expected: '#94a3b8',
-  power: '#334155',
-  wind: '#1baf7a',
-  ambient: '#eb6834',
-  alarm: '#d97706',
-  gap: '#2a78d6',
-  gapHigh: '#dc2626',
-  band: '#10b981',
-  grid: '#eef2f6',
-  axis: '#64748b',
+  measured: '#1d4d33', // forest
+  expected: '#8fae9c', // sage
+  power: '#22a447', // green
+  wind: '#2b6f80', // teal-blue
+  ambient: '#8fae9c', // sage
+  alarm: '#a8660c',
+  gap: '#1d4d33',
+  gapHigh: '#b3363c',
+  band: '#22a447',
+  grid: '#e5e8e6',
+  axis: '#5f6863',
+  ink: '#0e2a1c',
 }
 
 interface Row {
@@ -77,7 +78,7 @@ function useRows(s: Scenario, revealed: boolean) {
   }, [s, revealed])
 }
 
-const axisProps = { stroke: C.axis, fontSize: 11, tickLine: false, axisLine: false } as const
+const axisProps = { stroke: C.axis, fontSize: 14, tickLine: false, axisLine: false } as const
 
 /** Only temperature alarms belong on temperature charts; others (e.g. SCADA comms) stay in the alarm list. */
 const isTempAlarm = (text: string) => /temperat/i.test(text)
@@ -97,8 +98,8 @@ function AlarmLines({ s, rows, revealed, decisionT }: { s: Scenario; rows: Row[]
 function FutureShade({ revealed, decisionT, endT }: { revealed: boolean; decisionT: string; endT: string }) {
   return (
     <>
-      {revealed && <ReferenceArea x1={decisionT} x2={endT} fill="#0f1e36" fillOpacity={0.05} ifOverflow="extendDomain" />}
-      <ReferenceLine x={decisionT} stroke="#0f1e36" strokeDasharray="4 4" strokeOpacity={0.5} />
+      {revealed && <ReferenceArea x1={decisionT} x2={endT} fill={C.ink} fillOpacity={0.05} ifOverflow="extendDomain" />}
+      <ReferenceLine x={decisionT} stroke={C.ink} strokeDasharray="4 4" strokeOpacity={0.5} />
     </>
   )
 }
@@ -106,22 +107,22 @@ function FutureShade({ revealed, decisionT, endT }: { revealed: boolean; decisio
 function ChartTooltip({ unit, digits = 1 }: { unit: Record<string, string>; digits?: number }) {
   return (
     <Tooltip
-      cursor={{ stroke: '#94a3b8', strokeWidth: 1 }}
+      cursor={{ stroke: C.expected, strokeWidth: 1 }}
       isAnimationActive={false}
       labelFormatter={(t) => fmtHour(String(t))}
       formatter={(v, name) => [`${Number(v).toFixed(digits)} ${unit[String(name)] ?? ''}`, String(name)]}
-      contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, boxShadow: '0 4px 16px rgba(15,30,54,.08)' }}
+      contentStyle={{ borderRadius: 8, border: '1px solid #dcdfdd', fontSize: 15, fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(14,42,28,.08)' }}
     />
   )
 }
 
 function Legend({ items }: { items: { color: string; label: string; dashed?: boolean }[] }) {
   return (
-    <div className="flex flex-wrap gap-4 text-xs text-slate-600">
+    <div className="flex flex-wrap gap-4 text-sm text-slate-700">
       {items.map((it) => (
         <span key={it.label} className="flex items-center gap-1.5">
           <svg width="18" height="6">
-            <line x1="0" y1="3" x2="18" y2="3" stroke={it.color} strokeWidth="2" strokeDasharray={it.dashed ? '4 3' : undefined} />
+            <line x1="0" y1="3" x2="18" y2="3" stroke={it.color} strokeWidth="2.5" strokeDasharray={it.dashed ? '4 3' : undefined} />
           </svg>
           {it.label}
         </span>
@@ -147,8 +148,8 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
     <div className="card p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <h3 className="card-title">{s.component} temperature</h3>
-          <p className="mt-0.5 text-sm text-slate-500">Measured vs what a healthy part would show at this power and weather</p>
+          <h3 className="text-xl font-bold text-navy">{s.component} temperature</h3>
+          <p className="mt-0.5 text-base text-slate-700">Measured vs what a healthy part would show at this power and weather</p>
         </div>
         <div className="flex flex-col items-end gap-1.5">
           <Legend
@@ -158,13 +159,13 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
               ...(hasAlarms ? [{ color: C.alarm, label: 'Temperature alarm', dashed: true }] : []),
             ]}
           />
-          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-500">
+          <label className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-600">
             <input type="checkbox" checked={hourly} onChange={(e) => setHourly(e.target.checked)} className="accent-accent" />
             show hourly values
           </label>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={rows} syncId="case" margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
           <CartesianGrid stroke={C.grid} vertical={false} />
           <XAxis dataKey="t" ticks={ticks} tickFormatter={fmtDay} {...axisProps} />
@@ -177,8 +178,8 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
           <FutureShade revealed={revealed} decisionT={decisionT} endT={endT} />
           <AlarmLines s={s} rows={rows} revealed={revealed} decisionT={decisionT} />
           <ChartTooltip unit={{ ['Measured' + avg]: '°C', ['Expected' + avg]: '°C' }} />
-          <Line name={'Expected' + avg} dataKey={hourly ? 'expected' : 'expectedAvg'} stroke={C.expected} strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false} type="monotone" />
-          <Line name={'Measured' + avg} dataKey={hourly ? 'temp' : 'tempAvg'} stroke={C.measured} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
+          <Line name={'Expected' + avg} dataKey={hourly ? 'expected' : 'expectedAvg'} stroke={C.expected} strokeWidth={2} strokeDasharray="5 4" dot={false} isAnimationActive={false} type="monotone" />
+          <Line name={'Measured' + avg} dataKey={hourly ? 'temp' : 'tempAvg'} stroke={C.measured} strokeWidth={3} dot={false} isAnimationActive={false} type="monotone" />
         </LineChart>
       </ResponsiveContainer>
       <ShadeNote revealed={revealed} />
@@ -189,7 +190,7 @@ export function TemperatureChart({ s, revealed }: { s: Scenario; revealed: boole
 const BAND = 2 // °C: |gap| up to this is normal scatter
 
 /** Measured minus expected, 24 h average. The chart the junior should learn to judge by. */
-export function GapChart({ s, revealed, showHint }: { s: Scenario; revealed: boolean; showHint: boolean }) {
+export function GapChart({ s, revealed, showHint, strip = false }: { s: Scenario; revealed: boolean; showHint: boolean; strip?: boolean }) {
   const { rows, ticks, decisionT, endT } = useRows(s, revealed)
   // Axis at least -5..+5 so a healthy case looks calm; computed from the rows shown, so it never hints at the future.
   const gaps = rows.map((r) => r.gap).filter((g): g is number => g !== null)
@@ -207,18 +208,19 @@ export function GapChart({ s, revealed, showHint }: { s: Scenario; revealed: boo
     <div className="card p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <h3 className="card-title">Gap: measured − expected (24 h average)</h3>
-          <p className="mt-0.5 text-sm text-slate-500">How much warmer the part runs than a healthy one would</p>
+          <h3 className="text-xl font-bold text-navy">Gap: measured − expected (24 h average)</h3>
+          <p className="mt-0.5 text-base text-slate-700">How much warmer the part runs than a healthy one would</p>
         </div>
-        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-5 rounded-sm" style={{ background: C.band, opacity: 0.18 }} />
+            <span className="h-3 w-5 rounded-sm" style={{ background: C.band, opacity: 0.2 }} />
             Normal range ±{BAND} °C
           </span>
           <Legend items={[{ color: C.gap, label: 'Gap' }, { color: C.gapHigh, label: `Above +${BAND} °C` }]} />
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={180}>
+      {strip && <DayStrip s={s} revealed={revealed} />}
+      <ResponsiveContainer width="100%" height={210}>
         <LineChart data={rows} syncId="case" margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
@@ -236,17 +238,17 @@ export function GapChart({ s, revealed, showHint }: { s: Scenario; revealed: boo
             y2={BAND}
             fill={C.band}
             fillOpacity={0.12}
-            label={{ value: 'normal range', position: 'insideTopLeft', fontSize: 10, fill: '#059669' }}
+            label={{ value: 'normal range', position: 'insideTopLeft', fontSize: 14, fill: C.ink }}
           />
-          <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1} />
+          <ReferenceLine y={0} stroke={C.expected} strokeWidth={1} />
           <FutureShade revealed={revealed} decisionT={decisionT} endT={endT} />
           <AlarmLines s={s} rows={rows} revealed={revealed} decisionT={decisionT} />
           <ChartTooltip unit={{ Gap: '°C' }} />
-          <Line name="Gap" dataKey="gap" stroke={`url(#${gradId})`} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
+          <Line name="Gap" dataKey="gap" stroke={`url(#${gradId})`} strokeWidth={3} dot={false} isAnimationActive={false} type="monotone" />
         </LineChart>
       </ResponsiveContainer>
       {showHint && (
-        <p className="mt-2 rounded-lg bg-accent-soft px-3 py-2 text-sm text-slate-700">
+        <p className="mt-3 rounded-lg bg-slate-50 px-4 py-2.5 text-base text-slate-800">
           <b className="font-semibold text-navy">Tip:</b> Judge the gap, not the temperature: a gap that stays inside the band is normal, a gap that keeps growing is a
           developing fault.
         </p>
@@ -255,6 +257,31 @@ export function GapChart({ s, revealed, showHint }: { s: Scenario; revealed: boo
     </div>
   )
 }
+
+/** One block per day, coloured by that day's gap: greens inside the band, amber then red above it. History only until the reveal. */
+function DayStrip({ s, revealed }: { s: Scenario; revealed: boolean }) {
+  const S = s.series
+  const n = revealed ? S.t.length : S.history_len
+  const days = Array.from({ length: Math.floor(n / 24) }, (_, d) => ({ t: S.t[d * 24], gap: S.gap_24h[d * 24 + 23], future: d * 24 >= S.history_len }))
+  return (
+    <div className="mb-4 flex items-center gap-3">
+      <span className="w-20 shrink-0 text-sm font-bold text-navy-2">Daily gap</span>
+      <div className="flex flex-1 gap-1">
+        {days.map((d) => (
+          <span
+            key={d.t}
+            title={`${fmtDay(d.t)}: ${d.gap > 0 ? '+' : ''}${d.gap.toFixed(1)} °C`}
+            className={`h-10 flex-1 rounded-md ${d.future ? 'opacity-60' : ''}`}
+            style={{ background: dayColor(d.gap) }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const dayColor = (g: number) =>
+  g > 4 ? C.gapHigh : g > BAND ? '#d98a3a' : g < -BAND ? '#2b6f80' : ['#d4ebdb', '#a6d6b4', '#62b47d', '#2f8f4e'][Math.min(3, Math.floor(Math.abs(g) / 0.5))]
 
 /** Power, wind and outside temperature: three small charts on a shared time axis (no dual y-axes). */
 export function ConditionsChart({ s, revealed }: { s: Scenario; revealed: boolean }) {
@@ -266,25 +293,25 @@ export function ConditionsChart({ s, revealed }: { s: Scenario; revealed: boolea
   ] as const
   return (
     <div className="card p-5">
-      <h3 className="card-title mb-3">Operating conditions</h3>
+      <h3 className="mb-3 text-xl font-bold text-navy">Operating conditions</h3>
       <div className="space-y-1">
         {panels.map((p, i) => (
           <div key={p.key} className="flex items-center gap-2">
-            <div className="w-24 shrink-0 text-xs text-slate-600">
-              <div className="flex items-center gap-1.5 font-medium">
-                <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
+            <div className="w-32 shrink-0 text-sm text-slate-700">
+              <div className="flex items-center gap-1.5 font-bold text-navy">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: p.color }} />
                 {p.name}
               </div>
-              <div className="pl-3.5 text-slate-400">{p.unit}</div>
+              <div className="pl-3.5 text-slate-500">{p.unit}</div>
             </div>
-            <ResponsiveContainer width="100%" height={i === panels.length - 1 ? 92 : 72}>
+            <ResponsiveContainer width="100%" height={i === panels.length - 1 ? 108 : 84}>
               <LineChart data={rows} syncId="case" margin={{ top: 4, right: 8, bottom: 0, left: -12 }}>
                 <CartesianGrid stroke={C.grid} vertical={false} />
                 <XAxis dataKey="t" ticks={ticks} tickFormatter={fmtDay} hide={i !== panels.length - 1} {...axisProps} />
                 <YAxis tickCount={3} tickFormatter={p.fmt} {...axisProps} />
                 <FutureShade revealed={revealed} decisionT={decisionT} endT={endT} />
                 <ChartTooltip unit={{ [p.name]: p.unit }} digits={p.digits} />
-                <Line name={p.name} dataKey={p.key} stroke={p.color} strokeWidth={1.5} dot={false} isAnimationActive={false} type="monotone" />
+                <Line name={p.name} dataKey={p.key} stroke={p.color} strokeWidth={2} dot={false} isAnimationActive={false} type="monotone" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -297,7 +324,7 @@ export function ConditionsChart({ s, revealed }: { s: Scenario; revealed: boolea
 
 function ShadeNote({ revealed }: { revealed: boolean }) {
   return (
-    <p className="mt-2 text-xs text-slate-400">
+    <p className="mt-2 text-sm text-slate-600">
       {revealed
         ? 'Dashed line = your decision date. Shaded area = what happened afterwards (hidden while you decided).'
         : 'Dashed line = decision date. You only see the history; the future is hidden until you decide.'}

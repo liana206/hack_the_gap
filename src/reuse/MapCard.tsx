@@ -59,7 +59,7 @@ export default function MapCard({ card, data, year, weights, ctx, onClose, onCar
   }
 
   return (
-    <div className="absolute right-3 top-3 z-[600] max-h-[calc(100%-1.5rem)] w-[340px] overflow-y-auto rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200">
+    <div className="absolute right-3 top-3 z-[600] max-h-[calc(100%-1.5rem)] w-[340px] overflow-y-auto rounded-xl bg-white p-4 shadow-xl ring-1 ring-slate-200">
       <button onClick={onClose} className="float-right -mr-1 -mt-1 px-1 text-lg leading-none text-slate-400 hover:text-slate-700" aria-label="Close">×</button>
       {body}
     </div>
@@ -75,7 +75,7 @@ function Head({ color, shape, title, sub, pseudo }: { color: string; shape: 'cir
         <div className="font-semibold leading-tight text-navy">{title}</div>
         <div className="text-xs text-slate-500">
           {sub}
-          {pseudo && <span className="ml-1.5 rounded bg-slate-100 px-1 text-[10px] font-semibold uppercase text-slate-500">pseudo</span>}
+          {pseudo && <span className="ml-1.5 rounded bg-slate-100 px-1 text-xs font-semibold text-slate-500">pseudo</span>}
         </div>
       </div>
     </div>
@@ -96,7 +96,7 @@ function FarmCard({ f, year, params, lotId, onLot }: { f: Farm; year: number; pa
         ['Alpiq share', `${Math.round(f.alpiq_share * 100)}%`],
         ['Status', flagged ? `flagged in ${year}` : `flag from ${firstRetire(f) - params.planning_window_years}`],
       ]} />
-      {f.assumed && <div className="mt-2 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] text-amber-800">Assumed: {f.assumed}</div>}
+      {f.assumed && <div className="mt-2 rounded-lg bg-amber-50 px-2 py-1.5 text-xs text-amber-800">Assumed: {f.assumed}</div>}
       <DueTurbines f={f} year={year} params={params} onLot={onLot} />
       <div className="card-title mb-1 mt-3">Whole farm</div>
       <div className="space-y-1">
@@ -108,7 +108,7 @@ function FarmCard({ f, year, params, lotId, onLot }: { f: Farm; year: number; pa
           </button>
         ))}
       </div>
-      <div className="mt-2 text-[11px] text-slate-400">
+      <div className="mt-2 text-xs text-slate-400">
         Site and specs: <a href={f.source} target="_blank" rel="noreferrer" className="underline">Alpiq (public)</a>; component data is pseudo.
       </div>
     </>
@@ -124,7 +124,7 @@ function DueTurbines({ f, year, params, onLot }: { f: Farm; year: number; params
         <div className="flex flex-wrap gap-1">
           {due.map((t) => (
             <button key={t.id} onClick={() => onLot(t.lots[0].id)} title={t.reason}
-              className="rounded-md border border-orange-200 bg-orange-50 px-1.5 py-0.5 font-mono text-[11px] text-orange-800 hover:border-orange-400">
+              className="rounded-md border border-orange-200 bg-orange-50 px-1.5 py-0.5 font-mono text-xs text-orange-800 hover:border-orange-400">
               {t.id} · {t.retire_year}
             </button>
           ))}
@@ -169,7 +169,7 @@ function ReceiverCard({ r, ctx, params, weights }: { r: Receiver; ctx: LotContex
         sub={`${TYPE_LABEL[r.kind]} · ${COUNTRY_LABEL[r.country] ?? r.country} · tier ${r.tier} ${TIER_LABEL[r.tier]}`} pseudo />
       <p className="text-xs text-slate-600">{r.description}</p>
       {r.demand_source && (
-        <div className="mt-1 text-[11px] text-slate-500">Demand source: <b className="text-slate-700">{r.demand_source}</b> · {STAGE_LABEL[r.stage]}</div>
+        <div className="mt-1 text-xs text-slate-500">Demand source: <b className="text-slate-700">{r.demand_source}</b> · {STAGE_LABEL[r.stage]}</div>
       )}
 
       {ctx && (
@@ -199,7 +199,7 @@ function ReceiverCard({ r, ctx, params, weights }: { r: Receiver; ctx: LotContex
           {route.badges.length > 0 && (
             <div className="mt-1.5 flex flex-wrap gap-1">
               {route.badges.map((b) => (
-                <span key={b.text} className={`rounded px-1.5 py-0.5 text-[10px] ${b.source === 'law' ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-500'}`}>
+                <span key={b.text} className={`rounded px-1.5 py-0.5 text-xs ${b.source === 'law' ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-500'}`}>
                   {b.source === 'law' ? '§ ' : ''}{b.text}
                 </span>
               ))}
@@ -226,11 +226,11 @@ function ReceiverCard({ r, ctx, params, weights }: { r: Receiver; ctx: LotContex
       )}
 
       {r.precedent && (
-        <div className="mt-2 text-[11px] text-emerald-800">
+        <div className="mt-2 text-xs text-emerald-800">
           Modelled on: <a href={r.precedent.url} target="_blank" rel="noreferrer" className="underline">{r.precedent.label}</a>
         </div>
       )}
-      {!ctx && <div className="mt-2 text-[11px] text-slate-400">Pick a component on the left to see if this receiver fits.</div>}
+      {!ctx && <div className="mt-2 text-xs text-slate-400">Pick a component on the left to see if this receiver fits.</div>}
     </>
   )
 }
@@ -245,7 +245,7 @@ function ScoreBreakdown({ route, weights, params }: { route: Route; weights: Wei
     ['Certainty', route.fits.certainty, weights.certainty],
   ]
   return (
-    <div className="mt-1 space-y-1 rounded-lg bg-slate-50 p-2 text-[11px] text-slate-600">
+    <div className="mt-1 space-y-1 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
       {terms.map(([k, f, w]) => (
         <div key={k} className="flex items-center gap-2">
           <span className="w-16 shrink-0">{k}</span>

@@ -22,7 +22,7 @@ function icon(e: Entity, faded: boolean, selected: boolean) {
   const shape =
     e.type === 'farm' ? 'border-radius:50%' : e.type === 'hub' ? 'border-radius:2px' : 'transform:rotate(45deg);border-radius:2px'
   const ring = e.flagged ? 'box-shadow:0 0 0 3px #fff,0 0 0 6px #f97316;' : 'box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.35);'
-  const border = selected ? 'outline:2px solid #0f1e36;outline-offset:3px;' : ''
+  const border = selected ? 'outline:2px solid #0f3d2e;outline-offset:3px;' : ''
   return L.divIcon({
     className: '',
     iconSize: [size, size],
@@ -63,13 +63,13 @@ export default function ReuseMap({ ents, involved, selected, routes, allocation,
       const order = allocation.lines.map((l) => l.route.receiver.id)
       const leg1 = routes[0]?.leg1
       if (leg1)
-        L.polyline([leg1.from, leg1.to], { color: '#0f1e36', weight: 3, dashArray: '6 6' })
+        L.polyline([leg1.from, leg1.to], { color: '#0f3d2e', weight: 3, dashArray: '6 6' })
           .bindTooltip(`${leg1.km} km`, { permanent: true, direction: 'center', className: 'km-label' })
           .addTo(g)
       for (const r of [...routes].sort((a, b) => order.indexOf(b.receiver.id) - order.indexOf(a.receiver.id))) {
         const i = order.indexOf(r.receiver.id)
         const line = L.polyline([r.leg2.from, r.leg2.to], {
-          color: i >= 0 ? ROUTE_COLORS[i % ROUTE_COLORS.length] : '#94a3b8',
+          color: i >= 0 ? ROUTE_COLORS[i % ROUTE_COLORS.length] : '#8a9a94',
           weight: selected === r.receiver.id ? 7 : i >= 0 ? 4 : 2,
           opacity: 0.9,
           dashArray: i >= 0 ? undefined : '2 6',
@@ -101,9 +101,9 @@ export default function ReuseMap({ ents, involved, selected, routes, allocation,
   }, [ents, involved, selected, routes, allocation, fitKey, onMarker])
 
   return (
-    <div className="relative h-full overflow-hidden rounded-2xl ring-1 ring-slate-200">
+    <div className="relative h-full overflow-hidden rounded-xl border border-slate-200">
       <div ref={el} className="h-full w-full bg-slate-200" />
-      <div className="absolute bottom-3 left-3 z-[500] rounded-xl bg-white/95 px-2 py-2 text-[11px] text-slate-600 shadow">
+      <div className="absolute bottom-3 left-3 z-[500] rounded-xl bg-white/95 px-2 py-2 text-xs text-slate-600 shadow">
         {LEGEND.map((g) => (
           <button key={g.key} onClick={() => onLegend(g.key)}
             className="flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left hover:bg-slate-100" title="What is this?">

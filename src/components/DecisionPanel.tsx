@@ -14,9 +14,9 @@ export default function DecisionPanel({ askReason, onSubmit }: Props) {
   const ready = choice !== null && reason.trim().length >= MIN_REASON
 
   return (
-    <div className="card p-6">
-      <h3 className="text-lg font-semibold text-navy">Your call</h3>
-      <p className="text-sm text-slate-500">
+    <div className="card p-7">
+      <h3 className="text-3xl font-extrabold tracking-tight text-navy">Your call</h3>
+      <p className="mt-1 text-lg text-slate-700">
         {askReason ? 'You decide. The senior only comments after you commit.' : 'You decide: click your answer. The senior then explains the case.'}
       </p>
 
@@ -28,13 +28,13 @@ export default function DecisionPanel({ askReason, onSubmit }: Props) {
               key={a.id}
               onClick={() => (askReason ? setChoice(a.id) : onSubmit(a.id, ''))}
               aria-pressed={on}
-              className={`rounded-2xl border-2 p-4 text-left transition ${
-                on ? 'border-accent bg-accent-soft shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+              className={`rounded-xl border-2 p-5 text-left transition-colors ${
+                on ? 'border-accent bg-accent-soft' : 'border-transparent bg-slate-50 hover:border-slate-300'
               }`}
             >
               <Icon id={a.id} on={on} />
-              <div className={`mt-3 font-semibold ${on ? 'text-accent' : 'text-slate-800'}`}>{a.title}</div>
-              <div className="mt-0.5 text-sm text-slate-500">{a.detail}</div>
+              <div className="mt-3 text-xl font-bold text-navy">{a.title}</div>
+              <div className="mt-1 text-base text-slate-700">{a.detail}</div>
             </button>
           )
         })}
@@ -43,24 +43,24 @@ export default function DecisionPanel({ askReason, onSubmit }: Props) {
       {askReason && (
         <>
           <label className="mt-5 block">
-            <span className="text-sm font-medium text-slate-700">What in the data made you decide this?</span>
+            <span className="text-lg font-bold text-navy">What in the data made you decide this?</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               placeholder="e.g. the measured temperature is drifting above the expected line while power is normal…"
-              className="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white p-3 text-lg outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
           </label>
 
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-slate-400">
+            <span className="text-base text-slate-600">
               {reason.trim().length < MIN_REASON ? `Write at least ${MIN_REASON} characters.` : 'Ready.'}
             </span>
             <button
               disabled={!ready}
               onClick={() => choice && onSubmit(choice, reason.trim())}
-              className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-2 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg bg-accent px-6 py-3 text-lg font-bold text-white transition-colors hover:bg-accent-ink active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
             >
               Lock in decision
             </button>
@@ -80,10 +80,8 @@ const PATHS: Record<Answer, string> = {
 
 function Icon({ id, on }: { id: Answer; on: boolean }) {
   return (
-    <span className={`grid h-10 w-10 place-items-center rounded-xl ${on ? 'bg-accent text-white' : 'bg-slate-100 text-slate-500'}`}>
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d={PATHS[id]} />
-      </svg>
-    </span>
+    <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true" className={on ? 'text-accent' : 'text-teal'} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d={PATHS[id]} />
+    </svg>
   )
 }
