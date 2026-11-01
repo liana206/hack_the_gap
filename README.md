@@ -6,8 +6,7 @@ Group: Darkmode Hackers
 
 *We don’t give juniors the AI’s job. We give them a path from learning the workflow, to extending the business within it and feel the ownership.*
 
-Our programme turns AI from a replacement into a mentor. Learning is built into daily decisions, building instinct from real work. As their track record grows, AI help fades and their agency increases, from reading signals, to making maintenance decisions, to improving the workflow itself. Finally, the junior takes on end-to-end lifecycle management, following each turbine from its first alarm to its second life and developing the circularity business that nobody owned before. The path runs from basic learning to instinct, from decisions to responsibility, and finally to feeling of ownership. 
-
+Our programme turns AI from a replacement into a mentor. Learning is built into daily decisions, building instinct from real work. As their track record grows, more agency is given to the junior, from reading signals, to making maintenance decisions, to improving the workflow itself. Finally, the junior takes on end-to-end lifecycle management, following each turbine from its first alarm to its second life and developing the circularity business that nobody owned before. 
 
 ## Objective
 
