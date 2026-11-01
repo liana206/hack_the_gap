@@ -59,7 +59,7 @@ npm run dev                                 # 3. start the app at http://localho
    - Restart it after changing `.env`.
 
 
-## How it fits together
+## Structure
 
 Note: the UI calls the 4 steps stages; in the code they are still weeks (`src/weeks.ts`, `weekN`). This is because initially we thought of a weekly advancement schedule.
 
@@ -77,7 +77,7 @@ Note: the UI calls the 4 steps stages; in the code they are still weeks (`src/we
 | `pipeline/` | Case generator + [format docs](pipeline/README.md) |
 | `docs/` | Stage 4 research, rules and handover notes, UI redesign spec |
 
-## Oversight & honesty
+## Limitations
 
 - **The junior always decides.**
   - In stage 1, Sandra only speaks after the call is locked in.
