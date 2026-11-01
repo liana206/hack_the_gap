@@ -11,7 +11,7 @@ sometimes wrong on purpose, and is then scored **in code against what really hap
 Judgement in asset management normally takes years to build because a junior sees only a handful of real
 failures, and each one is expensive. This app compresses that experience. The junior works through
 cases built on historical sensor data (synthetic in this prototype), makes a call at a fixed decision
-date, and then sees the hidden future. This shows whether the bearing really failed, and what each possible call would have cost. Many cases in one afternoon give the kind of feedback and experience that would otherwise longer to gain. 
+date, and then sees the hidden future. This shows whether the bearing really failed, and what each possible call would have cost. Many cases in one afternoon give the kind of feedback and experience that would otherwise take longer to gain. 
 
 The AI is there to make the junior a better decision-maker, not to make decisions for them. The junior
 always decides first. The AI senior, "Sandra", explains, challenges and coaches, but she never grades based on her opinion. Correctness comes from the real outcome and the reasoning grade comes from a fixed checklist, both computed in code. From stage 2 on she is sometimes wrong on purpose to make the junior learn to check an AI's argument against the data instead of trusting it.
