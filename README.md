@@ -27,9 +27,9 @@ The app grows stage by stage. Each stage switches on more features (`src/weeks.t
 
 | Stage | What the junior does | How the AI helps them learn |
 |---|---|---|
-| **1 · Read the signals** | Six cases. Read the temperature, gap and conditions charts, then click a call. | After the reveal, Sandra coaches in a friendly style. She explains what mattered in the data and some guideline to base the decision from.|
+| **1 · Read the signals** | Six cases. Read the temperature, gap and conditions charts, then click a call. | After the reveal, Sandra coaches in a friendly style. She explains what mattered in the data and some guidelines to base the decision from.|
 | **2 · Think first, then challenge** | Six cases. Write a reason first (at least 15 characters), then lock in a first call. | Before the reveal, Sandra argues a position, which is sometimes a deliberate trap. The junior debates her. The debate ends when her arguments are answered, after 8 replies, or when the junior says they are satisfied with their case. After the reveal, she admits a trap, names the flaw, and lists what the junior left unanswered. |
-| **3 · Smart scheduling** | *Not built yet* . See [To be implemented](#to-be-implemented). This could be a task left the junior. | |
+| **3 · Smart scheduling** | *Not built yet* . See [To be implemented](#to-be-implemented). This could be a task left for the junior. | |
 | **4 · Second life** | Four cases, decided as in stage 2. When the right call is dismantling, a button opens the second-life map for that turbine. | On the map, rule-based matching proposes three alternative plans for the turbine's blades, steel and electrical parts, each with cost, CO₂ and embodied energy. The junior proposes a plan and a senior signs it off. |
 
 The learning log in the sidebar makes progress measurable. For each stage it shows:
